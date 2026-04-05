@@ -46,7 +46,7 @@ function calcMissing(data) {
   const miss = { bai:{}, shi:{}, ge:{} };
   for (let d of DIGITS) { miss.bai[d]=[]; miss.shi[d]=[]; miss.ge[d]=[]; }
   
-  let lastBai={}, lastShi{}, lastGe{};
+  let lastBai={}, lastShi={}, lastGe={};
   for (let d of DIGITS) { lastBai[d]=-1; lastShi[d]=-1; lastGe[d]=-1; }
   
   data.forEach((row, idx) => {
