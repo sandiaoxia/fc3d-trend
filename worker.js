@@ -1,6 +1,6 @@
 /**
- * FC3D Trend Chart - Cloudflare Worker V4
- * 完美复刻 新浪彩票 福彩3D基本走势图
+ * FC3D Trend Chart - Cloudflare Worker V5
+ * 精简布局: 期号递增排列 + 组选/走势交替 + 去掉所有右侧统计列
  * 数据源: huiNiao API (api.huiniao.top)
  */
 const API_URL = 'http://api.huiniao.top/interface/home/lotteryHistory?type=fcsd&page=1&limit=120';
@@ -13,42 +13,26 @@ const DIGITS = [0,1,2,3,4,5,6,7,8,9];
 function processData(apiJson) {
   const rawList = (apiJson.data && apiJson.data.data && apiJson.data.data.list)
     ? apiJson.data.data.list : [];
-  // 原始数据已经是最新在前，保持不变（最新期在表格最上方）
   return rawList.map(item => {
     const h = parseInt(item.one)||0, t = parseInt(item.two)||0, u = parseInt(item.three)||0;
-    const sum = h+t+u;
-    let ft, fg;
-    if (h===t&&t===u) {ft='baozi';fg='豹子';}
-    else if (h===t||t===u||h===u) {ft='zusan';fg='组三';}
-    else {ft='zuliu';fg='组六';}
-    const odds=[h,t,u].filter(x=>x%2===1).length;
-    const bigs=[h,t,u].filter(x=>x>=5).length;
-    const r0=[h,t,u].filter(x=>x%3===0).length;
-    const r1=[h,t,u].filter(x=>x%3===1).length;
-    const r2=3-r0-r1;
-    const d=new Date(item.day.replace(/-/g,'/'));
-    const wds=['日','一','二','三','四','五','六'];
+    const d = new Date(item.day.replace(/-/g,'/'));
+    const wds = ['日','一','二','三','四','五','六'];
     return {
-      issue:item.code, date:item.day, weekday:wds[d.getDay()],
-      numbers:[h,t,u], sum,
-      span:Math.max(h,t,u)-Math.min(h,t,u),
-      formType:ft, formTag:fg,
-      oddRatio:`${odds}:${3-odds}`,
-      bigRatio:`${bigs}:${3-bigs}`,
-      routeRatio:`${r0}${r1}${r2}`,
-      heWei:sum%10,
+      issue: item.code,
+      date: item.day,
+      weekday: wds[d.getDay()],
+      numbers: [h, t, u],
     };
   });
 }
 
-// 计算遗漏值：每个位置每个数字自上次出现以来的期数
-function calcMissing(data) {
+// 计算位置遗漏值（百位/十位/个位）— 基于当前数据排列顺序
+function calcPosMissing(data) {
   const miss = { bai:{}, shi:{}, ge:{} };
   for (let d of DIGITS) { miss.bai[d]=[]; miss.shi[d]=[]; miss.ge[d]=[]; }
-  
   let lastBai={}, lastShi={}, lastGe={};
   for (let d of DIGITS) { lastBai[d]=-1; lastShi[d]=-1; lastGe[d]=-1; }
-  
+
   data.forEach((row, idx) => {
     for (let d of DIGITS) {
       miss.bai[d].push(idx - lastBai[d]);
@@ -62,13 +46,13 @@ function calcMissing(data) {
   return miss;
 }
 
-// 计算组选遗漏
+// 计算组选遗漏值（三个号码的集合）
 function calcZuXuanMissing(data) {
   const miss = {};
   for (let d of DIGITS) { miss[d] = []; }
   let last = {};
   for (let d of DIGITS) { last[d] = -1; }
-  
+
   data.forEach((row, idx) => {
     for (let d of DIGITS) {
       miss[d].push(idx - last[d]);
@@ -80,44 +64,40 @@ function calcZuXuanMissing(data) {
   return miss;
 }
 
-// ===== 表格渲染（完美复刻新浪布局）=====
+// ===== V5 表格渲染 =====
+// 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9)
 function renderTable(data) {
-  const miss = calcMissing(data);
-  const zxm = calcZuXuanMissing(data);
+  // 关键：反转数据，使最老期在上，最新期在下（期号递增）
+  const revData = [...data].reverse();
+  
+  const posMiss = calcPosMissing(revData);
+  const zxMiss = calcZuXuanMissing(revData);
   
   let h = '<table id="tt"><thead>';
-  
+
   // 第一行表头
   h += '<tr>';
   h += '<th rowspan="2" class="ci">期号</th>';
   h += '<th rowspan="2" class="cw">星期</th>';
   h += '<th rowspan="2" class="cn">奖号</th>';
-  h += '<th rowspan="2" class="cs">和值</th>';
-  h += '<th colspan="10" class="sb">百位号码走势</th>';
-  h += '<th colspan="10" class="ss">十位号码走势</th>';
-  h += '<th colspan="10" class="sg">个位号码走势</th>';
   h += '<th colspan="10" class="sz">组选号码分布</th>';
-  h += '<th rowspan="2" class="cfm">形态<br>组六</th>';
-  h += '<th rowspan="2" class="cfm">组三</th>';
-  h += '<th rowspan="2" class="cfm">豹子</th>';
-  h += '<th rowspan="2" classchw">和尾</th>';
-  h += '<th rowspan="2" classcsp">跨度</th>';
-  h += '<th rowspan="2" classcf">形态</th>';
-  h += '<th rowspan="2" classco">奇偶比</th>';
-  h += '<th rowspan="2" classcb">大小比</th>';
-  h += '<th rowspan="2" classcr">012路<br>个数比</th>';
+  h += '<th colspan="10" class="sb">百位号码走势</th>';
+  h += '<th colspan="10" class="sz2">组选号码分布</th>';
+  h += '<th colspan="10" class="ss">十位号码走势</th>';
+  h += '<th colspan="10" class="sz3">组选号码分布</th>';
+  h += '<th colspan="10" class="sg">个位号码走势</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 4组
+  // 第二行数字 0-9 x 7组
   h += '<tr>';
-  for (let g = 0; g < 4; g++) {
+  for (let g = 0; g < 7; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
   }
   h += '</tr></thead><tbody>';
 
-  data.forEach((row, idx) => {
+  revData.forEach((row, idx) => {
     h += `<tr data-i="${idx}">`;
     
     // 期号
@@ -131,13 +111,24 @@ function renderTable(data) {
       h += `<span class="b ${c}">${n}</span>`;
     });
     h += `</td>`;
-    // 和值
-    h += `<td class="sc">${row.sum}</td>`;
 
-    // 百位走势 0-9
+    // ===== 组选分布 #1 (0-9) =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      const mv = zxMiss[d][idx];
+      h += `<td class="dc dt-zx" data-pos="zx1" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx">${d}</span>`;
+      } else {
+        h += `<span class="miss-val">${mv}</span>`;
+      }
+      h += `</td>`;
+    }
+
+    // ===== 百位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[0] === d;
-      const mv = miss.bai[d][idx];
+      const mv = posMiss.bai[d][idx];
       h += `<td class="dc dt-bai" data-pos="bai" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-bai">${d}</span>`;
@@ -147,10 +138,23 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // 十位走势 0-9
+    // ===== 组选分布 #2 (0-9) =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      const mv = zxMiss[d][idx];
+      h += `<td class="dc dt-zx" data-pos="zx2" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx">${d}</span>`;
+      } else {
+        h += `<span class="miss-val">${mv}</span>`;
+      }
+      h += `</td>`;
+    }
+
+    // ===== 十位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[1] === d;
-      const mv = miss.shi[d][idx];
+      const mv = posMiss.shi[d][idx];
       h += `<td class="dc dt-shi" data-pos="shi" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-shi">${d}</span>`;
@@ -160,10 +164,23 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // 个位走势 0-9
+    // ===== 组选分布 #3 (0-9) =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      const mv = zxMiss[d][idx];
+      h += `<td class="dc dt-zx" data-pos="zx3" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx">${d}</span>`;
+      } else {
+        h += `<span class="miss-val">${mv}</span>`;
+      }
+      h += `</td>`;
+    }
+
+    // ===== 个位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[2] === d;
-      const mv = miss.ge[d][idx];
+      const mv = posMiss.ge[d][idx];
       h += `<td class="dc dt-ge" data-pos="ge" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-ge">${d}</span>`;
@@ -173,33 +190,6 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // 组选分布 0-9
-    for (let d of DIGITS) {
-      const hit = row.numbers.includes(d);
-      const mv = zxm[d][idx];
-      h += `<td class="dc dt-zx" data-pos="zx" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
-      if (hit) {
-        h += `<span class="ball hit-zx">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
-      }
-      h += `</td>`;
-    }
-
-    // 形态组六/组三/豹子
-    h += `<td class="fm-cell ${row.formType==='zuliu'?'fm-active':''}">组六</td>`;
-    h += `<td class="fm-cell ${row.formType==='zusan'?'fm-active':''}">组三</td>`;
-    h += `<td class="fm-cell ${row.formType==='baozi'?'fm-active':''}">豹子</td>`;
-
-    // 和尾 跨度 形态 奇偶 大小 012路
-    h += `<td class="hw">${row.heWei}</td>`;
-    h += `<td class="sp">${row.span}</td>`;
-    const fmClass = row.formType==='zuliu'?'fzl':(row.formType==='zusan'?'fzs':'fbz');
-    h += `<td class="fmt ${fmClass}">${row.formTag}</td>`;
-    h += `<td class="rat">${row.oddRatio}</td>`;
-    h += `<td class="rat">${row.bigRatio}</td>`;
-    h += `<td class="rt">${row.routeRatio}</td>`;
-
     h += '</tr>';
   });
 
@@ -207,7 +197,7 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS 完美复刻新浪风格 ===== */
+/* ===== CSS V5 ===== */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -221,7 +211,7 @@ body{
 .header .sub{font-size:12px;opacity:.88;margin-bottom:8px}
 .header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 14px;font-size:11.5px}
 
-.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
 .nav-tabs .tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
 .nav-tabs .tab.active{color:#e03a3a;font-weight:700;border-bottom-color:#e03a3a}
 .nav-tabs .tab:hover{color:#e03a3a}
@@ -240,19 +230,15 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
 thead tr:first-child th{top:0;z-index:101}
 thead tr:nth-child(2) th{top:33px;z-index:100}
+
+/* 分类标题色 — 组选(黄)、百位(红)、十位(蓝)、个位(绿) */
+thead th.sz,thead th.sz2,thead th.sz3{background:#fff3cd;color:#856404;font-size:11.5px}
 thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
-thead th.sz{background:#fff3cd;color:#856404;font-size:11.5px}
-thead th.cfm{background:#f5f5f5;color:#666;font-size:10.5px;width:36px;line-height:1.35}
-thead th.chw{width:28px}
-thead th.csp{width:28px}
-thead th.cf{width:34px}
-thead th.co{width:38px}
-thead th.cb{width:38px}
-thead th.cr{width:40px;line-height:1.3}
+
 thead th.cd{width:26px;font-weight:800;font-size:12px;color:#333;background:#fafafa}
-thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}thead th.cs{width:28px}
+thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -271,15 +257,12 @@ td{border:1px solid #e8dfd2;text-align:center;height:32px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 和值 */
-.sc{font-weight:700;color:#2980b9;font-size:12.5px}
-
 /* 数字格子 */
 .dc{width:26px;height:32px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+.dt-zx{border-left:2px solid #f5ecd0}
 .dt-bai{border-left:2px solid #f5d0d0}
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
-.dt-zx{border-left:2px solid #f5ecd0}
 
 /* 中奖圆球 */
 .dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;line-height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
@@ -292,18 +275,6 @@ td{border:1px solid #e8dfd2;text-align:center;height:32px;vertical-align:middle;
 
 /* SVG连线层 */
 svg.trend-layer{position:absolute;top:0;left:0;pointer-events:none;z-index:15;overflow:visible}
-
-/* 右侧数据列 */
-.hw{font-weight:600;color:#8e44ad;font-size:11.5px}
-.sp{font-weight:600;color:#e74c3c;font-size:11.5px}
-.fmt{font-size:11px;font-weight:600}
-.fzl{color:#27ae60}.fzs{color:#e67e22}.fbz{color:#e74c3c}
-.rat{font-size:11.5px;color:#555}
-.rt{font-weight:700;color:#d35400;font-size:11.5px;letter-spacing:.5px}
-
-/* 形态单元格 */
-.fm-cell{font-size:10.5px;color:#bbb;width:36px}
-.fm-cell.fm-active{font-weight:700;color:#333}
 `;
 
 const JS = `
@@ -338,6 +309,7 @@ function drawTrends() {
   table.style.position = 'relative';
   table.appendChild(svg);
 
+  // 只对三个位置画走势连线
   var configs = [
     { pos: 'bai', color: '#e74c3c', strokeColor: '#c0392b' },
     { pos: 'shi', color: '#3498db', strokeColor: '#2980b9' },
@@ -432,10 +404,11 @@ export default {
       if (j.code !== 1) throw new Error(j.info || 'API error');
 
       const data = processData(j);
-      const latestDate = data.length > 0 ? data[0].date : new Date().toLocaleDateString('zh-CN');
-      const rangeInfo = data.length > 0 
-        ? '期数范围: ' + data[0].issue + ' → ' + data[data.length-1].issue 
-        : '';
+      // 反转后：第一行是最老期，最后一行是最新期
+      const revData = [...data].reverse();
+      const oldestIssue = revData.length > 0 ? revData[0].issue : '';
+      const latestIssue = revData.length > 0 ? revData[revData.length-1].issue : '';
+      const latestDate = revData.length > 0 ? revData[revData.length-1].date : '';
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
@@ -443,8 +416,8 @@ export default {
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
-        + '<div class="sub">中国福利彩票 · 基本走势（百位/十位/个位 + 组选分布）</div>'
-        + '<div class="update-info">数据时间: ' + latestDate + ' · 共 ' + data.length + ' 期</div></div>'
+        + '<div class="sub">中国福利彩票 · 基本走势（组选分布 + 百位/十位/个位走势）</div>'
+        + '<div class="update-info">数据时间: ' + latestDate + ' · 共 ' + data.length + ' 期 · 范围: ' + oldestIssue + ' → ' + latestIssue + '</div></div>'
         
         + '<div class="nav-tabs">'
         + '<div class="tab active">基本走势</div>'
@@ -472,7 +445,7 @@ export default {
         + '<div class="period-btn">300期</div>'
         + '<div class="period-btn">500期</div>'
         + '<button class="expert-btn" onclick="location.reload()">查看专家推荐</button>'
-        + '<span class="status-text">' + rangeInfo + '</span></div>'
+        + '<span class="status-text">' + oldestIssue + ' → ' + latestIssue + ' (递增)</span></div>'
         
         + '<div class="table-wrap" id="tc">' + renderTable(data) + '</div>'
         
