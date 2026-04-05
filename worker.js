@@ -113,13 +113,13 @@ function renderTable(data) {
     });
     h += `</td>`;
 
-    // ===== 组选分布 #1 (0-9) =====
+    // ===== 组选分布 #1 (0-9) — 紫色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
       const mv = zxMiss[d][idx];
-      h += `<td class="dc dt-zx" data-pos="zx1" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      h += `<td class="dc dt-zx1" data-pos="zx1" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
-        h += `<span class="ball hit-zx">${d}</span>`;
+        h += `<span class="ball hit-zx1">${d}</span>`;
       } else {
         h += `<span class="miss-val">${mv}</span>`;
       }
@@ -139,13 +139,13 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #2 (0-9) =====
+    // ===== 组选分布 #2 (0-9) — 橙色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
       const mv = zxMiss[d][idx];
-      h += `<td class="dc dt-zx" data-pos="zx2" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      h += `<td class="dc dt-zx2" data-pos="zx2" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
-        h += `<span class="ball hit-zx">${d}</span>`;
+        h += `<span class="ball hit-zx2">${d}</span>`;
       } else {
         h += `<span class="miss-val">${mv}</span>`;
       }
@@ -165,13 +165,13 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #3 (0-9) =====
+    // ===== 组选分布 #3 (0-9) — 青色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
       const mv = zxMiss[d][idx];
-      h += `<td class="dc dt-zx" data-pos="zx3" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      h += `<td class="dc dt-zx3" data-pos="zx3" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
-        h += `<span class="ball hit-zx">${d}</span>`;
+        h += `<span class="ball hit-zx3">${d}</span>`;
       } else {
         h += `<span class="miss-val">${mv}</span>`;
       }
@@ -191,13 +191,13 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #4 (0-9) — 个位后面 =====
+    // ===== 组选分布 #4 (0-9) — 粉色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
       const mv = zxMiss[d][idx];
-      h += `<td class="dc dt-zx" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
-        h += `<span class="ball hit-zx">${d}</span>`;
+        h += `<span class="ball hit-zx4">${d}</span>`;
       } else {
         h += `<span class="miss-val">${mv}</span>`;
       }
@@ -245,8 +245,11 @@ thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:
 thead tr:first-child th{top:0;z-index:101}
 thead tr:nth-child(2) th{top:33px;z-index:100}
 
-/* 分类标题色 — 组选(黄)、百位(红)、十位(蓝)、个位(绿) */
-thead th.sz,thead th.sz2,thead th.sz3,thead th.sz4{background:#fff3cd;color:#856404;font-size:11.5px}
+/* 分类标题色 — 组选1(紫)、百位(红)、组选2(橙)、十位(蓝)、组选3(青)、个位(绿)、组选4(粉) */
+thead th.sz{background:#e8daef;color:#6c3483;font-size:11.5px}
+thead th.sz2{background:#fdebd0;color:#b9770e;font-size:11.5px}
+thead th.sz3{background:#d1f2eb;color:#117a65;font-size:11.5px}
+thead th.sz4{background:#fadbd8;color:#922b21;font-size:11.5px}
 thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
@@ -273,7 +276,10 @@ td{border:1px solid #e8dfd2;text-align:center;height:32px;vertical-align:middle;
 
 /* 数字格子 */
 .dc{width:26px;height:32px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
-.dt-zx{border-left:2px solid #f5ecd0}
+.dt-zx1{border-left:2px solid #d7bde2}
+.dt-zx2{border-left:2px solid #f5cba7}
+.dt-zx3{border-left:2px solid #a3e4d7}
+.dt-zx4{border-left:2px solid #f5b7b1}
 .dt-bai{border-left:2px solid #f5d0d0}
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
@@ -283,7 +289,11 @@ td{border:1px solid #e8dfd2;text-align:center;height:32px;vertical-align:middle;
 .hit-bai{background:linear-gradient(135deg,#e74c3c,#c0392b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(192,57,43,.4)}
 .hit-shi{background:linear-gradient(135deg,#3498db,#2980b9);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(41,128,185,.4)}
 .hit-ge{background:linear-gradient(135deg,#27ae60,#1e8449);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(39,174,96,.4)}
-.hit-zx{background:linear-gradient(135deg,#f39c12,#e67e22);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(230,126,34,.4)}
+/* 组选分布4种颜色 */
+.hit-zx1{background:linear-gradient(135deg,#9b59b6,#8e44ad);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(142,68,173,.45)}
+.hit-zx2{background:linear-gradient(135deg,#e67e22,#d35400);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(211,84,0,.4)}
+.hit-zx3{background:linear-gradient(135deg,#1abc9c,#16a085);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(22,160,133,.4)}
+.hit-zx4{background:linear-gradient(135deg,#e91e63,#c2185b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(194,24,91,.4)}
 
 .miss-val{font-size:10px;color:#aaa;line-height:32px;display:block}
 
