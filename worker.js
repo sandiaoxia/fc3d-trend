@@ -116,12 +116,9 @@ function renderTable(data) {
     // ===== 组选分布 #1 (0-9) — 紫色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
-      const mv = zxMiss[d][idx];
       h += `<td class="dc dt-zx1" data-pos="zx1" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-zx1">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -129,12 +126,9 @@ function renderTable(data) {
     // ===== 百位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[0] === d;
-      const mv = posMiss.bai[d][idx];
       h += `<td class="dc dt-bai" data-pos="bai" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-bai">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -142,12 +136,9 @@ function renderTable(data) {
     // ===== 组选分布 #2 (0-9) — 橙色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
-      const mv = zxMiss[d][idx];
       h += `<td class="dc dt-zx2" data-pos="zx2" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-zx2">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -155,12 +146,9 @@ function renderTable(data) {
     // ===== 十位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[1] === d;
-      const mv = posMiss.shi[d][idx];
       h += `<td class="dc dt-shi" data-pos="shi" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-shi">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -168,12 +156,9 @@ function renderTable(data) {
     // ===== 组选分布 #3 (0-9) — 青色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
-      const mv = zxMiss[d][idx];
       h += `<td class="dc dt-zx3" data-pos="zx3" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-zx3">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -181,12 +166,9 @@ function renderTable(data) {
     // ===== 个位走势 (0-9) =====
     for (let d of DIGITS) {
       const hit = row.numbers[2] === d;
-      const mv = posMiss.ge[d][idx];
       h += `<td class="dc dt-ge" data-pos="ge" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-ge">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
@@ -194,12 +176,9 @@ function renderTable(data) {
     // ===== 组选分布 #4 (0-9) — 粉色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
-      const mv = zxMiss[d][idx];
       h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-zx4">${d}</span>`;
-      } else {
-        h += `<span class="miss-val">${mv}</span>`;
       }
       h += `</td>`;
     }
