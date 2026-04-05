@@ -248,7 +248,7 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 
 /* 奖号球 */
 .nc{padding:2px 4px !important}
-.nc .b{display:inline-block;width:24px;height:24px;line-height:24px;border-radius:50%;font-weight:700;font-size:13px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2)}
+.nc .b{display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;font-weight:700;font-size:14px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2)}
 .br{background:linear-gradient(135deg,#e74c3c,#c0392b)}
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
@@ -263,8 +263,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
 
-/* 中奖圆球 */
-.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:23px;height:23px;line-height:23px;border-radius:50%;font-size:12px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+/* 中奖圆球 — 充满格子 */
+.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;line-height:26px;border-radius:50%;font-size:13px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .hit-bai{background:linear-gradient(135deg,#e74c3c,#c0392b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(192,57,43,.4)}
 .hit-shi{background:linear-gradient(135deg,#3498db,#2980b9);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(41,128,185,.4)}
 .hit-ge{background:linear-gradient(135deg,#27ae60,#1e8449);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(39,174,96,.4)}
