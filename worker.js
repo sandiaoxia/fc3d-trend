@@ -65,7 +65,7 @@ function calcZuXuanMissing(data) {
 }
 
 // ===== V5 表格渲染 =====
-// 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9)
+// 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9) | 组选(0-9)
 function renderTable(data) {
   // 关键：反转数据，使最老期在上，最新期在下（期号递增）
   const revData = [...data].reverse();
@@ -86,11 +86,12 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
+  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 7组
+  // 第二行数字 0-9 x 8组
   h += '<tr>';
-  for (let g = 0; g < 7; g++) {
+  for (let g = 0; g < 8; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -190,6 +191,19 @@ function renderTable(data) {
       h += `</td>`;
     }
 
+    // ===== 组选分布 #4 (0-9) — 个位后面 =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      const mv = zxMiss[d][idx];
+      h += `<td class="dc dt-zx" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx">${d}</span>`;
+      } else {
+        h += `<span class="miss-val">${mv}</span>`;
+      }
+      h += `</td>`;
+    }
+
     h += '</tr>';
   });
 
@@ -232,7 +246,7 @@ thead tr:first-child th{top:0;z-index:101}
 thead tr:nth-child(2) th{top:33px;z-index:100}
 
 /* 分类标题色 — 组选(黄)、百位(红)、十位(蓝)、个位(绿) */
-thead th.sz,thead th.sz2,thead th.sz3{background:#fff3cd;color:#856404;font-size:11.5px}
+thead th.sz,thead th.sz2,thead th.sz3,thead th.sz4{background:#fff3cd;color:#856404;font-size:11.5px}
 thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
