@@ -65,7 +65,7 @@ function calcZuXuanMissing(data) {
 }
 
 // ===== V5 表格渲染 =====
-// 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9) | 组选(0-9)
+// 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9)
 function renderTable(data) {
   // 关键：反转数据，使最老期在上，最新期在下（期号递增）
   const revData = [...data].reverse();
@@ -88,9 +88,9 @@ function renderTable(data) {
   h += '<th colspan="10" class="sg">个位号码走势</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 8组
+  // 第二行数字 0-9 x 7组
   h += '<tr>';
-  for (let g = 0; g < 8; g++) {
+  for (let g = 0; g < 7; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -373,45 +373,6 @@ function drawTrends() {
 
 setTimeout(drawTrends, 500);
 
-// ===== 自动全屏 =====
-(function() {
-  var fsEnabled = false;
-  
-  function tryFullscreen() {
-    var el = document.documentElement;
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el).then(function() {
-        fsEnabled = true;
-      }).catch(function() {});
-    }
-  }
-
-  // 页面加载后自动尝试全屏（需用户交互后触发，这里用首次点击作为触发）
-  var fsTriggered = false;
-  document.addEventListener('click', function() {
-    if (!fsTriggered) {
-      fsTriggered = true;
-      setTimeout(tryFullscreen, 100);
-    }
-  }, { once: true });
-
-  // 双击切换全屏
-  document.addEventListener('dblclick', function(e) {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('.nav-tabs')) return;
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      tryFullscreen();
-    } else {
-      (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
-    }
-  });
-
-  // 监听方向键/ESC退出全屏时重新进入
-  document.addEventListener('fullscreenchange', function() {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement && fsEnabled) {
-      // 用户手动退出，不再强制
-    }
-  });
-})();
 
 var resizeTimer;
 window.addEventListener('resize', function() {
