@@ -86,7 +86,6 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
-  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
   // 第二行数字 0-9 x 8组
@@ -173,16 +172,6 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #4 (0-9) — 粉色系 =====
-    for (let d of DIGITS) {
-      const hit = row.numbers.includes(d);
-      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
-      if (hit) {
-        h += `<span class="ball hit-zx4">${d}</span>`;
-      }
-      h += `</td>`;
-    }
-
     h += '</tr>';
   });
 
@@ -197,6 +186,8 @@ body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
+  margin:0;padding:0;
+  width:100vw;overflow-x:hidden;
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
@@ -216,8 +207,8 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
+.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;width:100vw}
+table{border-collapse:collapse;width:100%;min-width:max-content;font-size:12.5px;table-layout:fixed}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -233,8 +224,8 @@ thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
-thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
+thead th.cd{font-weight:800;font-size:13px;color:#333;background:#fafafa}
+thead th.ci{width:72px;min-width:72px}thead th.cw{width:30px;min-width:30px}thead th.cn{width:56px;min-width:56px}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -253,8 +244,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数字格子 */
-.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+/* 数字格子 — 自适应宽度 */
+.dc{height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
@@ -381,6 +372,46 @@ function drawTrends() {
 }
 
 setTimeout(drawTrends, 500);
+
+// ===== 自动全屏 =====
+(function() {
+  var fsEnabled = false;
+  
+  function tryFullscreen() {
+    var el = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el).then(function() {
+        fsEnabled = true;
+      }).catch(function() {});
+    }
+  }
+
+  // 页面加载后自动尝试全屏（需用户交互后触发，这里用首次点击作为触发）
+  var fsTriggered = false;
+  document.addEventListener('click', function() {
+    if (!fsTriggered) {
+      fsTriggered = true;
+      setTimeout(tryFullscreen, 100);
+    }
+  }, { once: true });
+
+  // 双击切换全屏
+  document.addEventListener('dblclick', function(e) {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.nav-tabs')) return;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      tryFullscreen();
+    } else {
+      (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+    }
+  });
+
+  // 监听方向键/ESC退出全屏时重新进入
+  document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && fsEnabled) {
+      // 用户手动退出，不再强制
+    }
+  });
+})();
 
 var resizeTimer;
 window.addEventListener('resize', function() {
