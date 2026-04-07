@@ -190,39 +190,37 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.0 ===== */
-/* 核心策略: table-layout:auto + width:100% 让表格始终填满视口宽度，
-   数据列不设固定宽度由浏览器自动均分，ball绝对定位居中不受影响 */
+/* ===== CSS V6.1 ===== */
+/* 核心: 恢复固定像素宽度(max-content)保证号码球不重叠 + 
+   用body白色背景融合消除视觉空白 + overflow-x:auto处理窄屏滚动 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-html{width:100%;overflow-x:hidden}
+html{width:100%}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  width:100%;
-  overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
 
-.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;width:100%}
+.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px}
 .header h1{font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
 .header .sub{font-size:12px;opacity:.88;margin-bottom:8px}
 .header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 14px;font-size:11.5px}
 
-.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;width:100%}
+.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
 .nav-tabs .tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
 .nav-tabs .tab.active{color:#e03a3a;font-weight:700;border-bottom-color:#e03a3a}
 .nav-tabs .tab:hover{color:#e03a3a}
 
-.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap;width:100%}
+.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap}
 .toolbar .period-btn{padding:5px 14px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#fff;font-size:12px;transition:.2s}
 .toolbar .period-btn:hover{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .period-btn.active{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{width:100%;overflow-x:auto;background:#fff;position:relative}
-table{border-collapse:collapse;width:100%;font-size:12.5px;table-layout:auto}
+.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -238,8 +236,8 @@ thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
-thead th.cd{font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:7%}thead th.cw{width:3.5%}thead th.cn{width:6%}
+thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
+thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -258,8 +256,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数字格子 — 不设固定宽度，让浏览器自动均分 */
-.dc{height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+/* 数字格子 — 固定宽度30px，保证ball绝对定位不重叠 */
+.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
