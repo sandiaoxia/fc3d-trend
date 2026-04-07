@@ -86,12 +86,11 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
-  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 8组
+  // 第二行数字 0-9 x 7组（组选1+百位+组选2+十位+组选3+个位）
   h += '<tr>';
-  for (let g = 0; g < 8; g++) {
+  for (let g = 0; g < 7; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -173,16 +172,6 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #4 (0-9) — 粉色系 =====
-    for (let d of DIGITS) {
-      const hit = row.numbers.includes(d);
-      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
-      if (hit) {
-        h += `<span class="ball hit-zx4">${d}</span>`;
-      }
-      h += `</td>`;
-    }
-
     h += '</tr>';
   });
 
@@ -190,77 +179,73 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6 ===== */
-/* 核心策略: table 用 width:100% + table-layout:fixed 填满容器，
-   配合每列固定 width，彻底消除任何缩放比例下的右侧空白 */
+/* ===== CSS V6 — 动态满屏布局 ===== */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{
-  width:100%;
-  overflow-x:hidden;
-}
-body{
+  width:100%;height:100%;overflow:hidden;
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
 }
 
-.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
-.header h1{font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
-.header .sub{font-size:12px;opacity:.88;margin-bottom:8px}
-.header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 14px;font-size:11.5px}
+.header{background:#e03a3a;color:#fff;text-align:center;padding:12px 16px 10px;flex-shrink:0}
+.header h1{font-size:20px;font-weight:700;letter-spacing:2px;margin-bottom:2px}
+.header .sub{font-size:11.5px;opacity:.88;margin-bottom:6px}
+.header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 12px;font-size:11px}
 
-.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
-.nav-tabs .tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
+.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;flex-shrink:0}
+.nav-tabs .tab{padding:8px 12px;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
 .nav-tabs .tab.active{color:#e03a3a;font-weight:700;border-bottom-color:#e03a3a}
 .nav-tabs .tab:hover{color:#e03a3a}
 
-.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap}
-.toolbar .period-btn{padding:5px 14px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#fff;font-size:12px;transition:.2s}
+.toolbar{background:#fffbf0;padding:6px 10px;display:flex;gap:5px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap;flex-shrink:0}
+.toolbar .period-btn{padding:4px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#fff;font-size:11.5px;transition:.2s}
 .toolbar .period-btn:hover{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .period-btn.active{background:#e03a3a;color:#fff;border-color:#e03a3a}
-.toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
-.toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
+.toolbar .expert-btn{margin-left:auto;padding:4px 14px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:11.5px;cursor:pointer}
+.toolbar .status-text{color:#999;font-size:10.5px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+/* 表格容器 — 占据剩余所有空间 */
+.table-wrap{flex:1;overflow:hidden;background:#fff;position:relative;width:100%}
+table#tt{border-collapse:collapse;width:100%;height:100%;table-layout:fixed;font-size:12px}
 
 /* 表头 */
-thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
+thead th{border:1px solid #e0c8b8;padding:4px 2px;text-align:center;font-weight:700;color:#555;font-size:11px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
 thead tr:first-child th{top:0;z-index:101}
-thead tr:nth-child(2) th{top:37px;z-index:100}
+thead tr:nth-child(2) th{top:30px;z-index:100}
 
-/* 分类标题色 — 组选1(紫)、百位(红)、组选2(橙)、十位(蓝)、组选3(青)、个位(绿)、组选4(粉) */
-thead th.sz{background:#e8daef;color:#6c3483;font-size:11.5px}
-thead th.sz2{background:#fdebd0;color:#b9770e;font-size:11.5px}
-thead th.sz3{background:#d1f2eb;color:#117a65;font-size:11.5px}
-thead th.sz4{background:#fadbd8;color:#922b21;font-size:11.5px}
-thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
-thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
-thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
+/* 分类标题色 */
+thead th.sz{background:#e8daef;color:#6c3483;font-size:10.5px}
+thead th.sz2{background:#fdebd0;color:#b9770e;font-size:10.5px}
+thead th.sz3{background:#d1f2eb;color:#117a65;font-size:10.5px}
+thead th.sz4{background:#fadbd8;color:#922b21;font-size:10.5px}
+thead th.sb{background:#ffe4de;color:#c0392b;font-size:10.5px}
+thead th.ss{background:#ddeaff;color:#2980b9;font-size:10.5px}
+thead th.sg{background:#ddf0dd;color:#27ae60;font-size:10.5px}
 
-thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
+/* 固定列 — 期号/星期/奖号 */
+thead th.ci{width:68px}
+thead th.cw{width:26px}
+thead th.cn{width:88px}
+thead th.cd{font-weight:800;font-size:13px;color:#333;background:#fafafa}
 
 /* 数据行 */
 tbody tr{border:none}
 tbody tr:nth-child(even){background:#fffcf8}
 tbody tr:hover{background:#fff3e0}
-td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;white-space:nowrap;position:relative;padding:0}
+td{border:1px solid #e8dfd2;text-align:center;height:34px;vertical-align:middle;white-space:nowrap;position:relative;padding:0;overflow:hidden}
 
 /* 期号 星期 */
-.ic{font-weight:700;color:#e03a3a;font-size:12px;background:#fff5f0}
-.wc{color:#888;font-size:11px;background:#fafafa}
+.ic{font-weight:700;color:#e03a3a;font-size:11px;background:#fff5f0;width:68px}
+.wc{color:#888;font-size:10px;background:#fafafa;width:26px}
 
 /* 奖号球 */
-.nc{padding:2px 4px !important}
-.nc .b{display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;font-weight:700;font-size:14px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2)}
-.br{background:linear-gradient(135deg,#e74c3c,#c0392b)}
-.bl{background:linear-gradient(135deg,#3498db,#2980b9)}
-.bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
+.nc{padding:2px 2px !important;width:88px}
+.nc .b{display:inline-block;border-radius:50%;font-weight:700;font-size:13px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2);vertical-align:middle}
 
-/* 数字格子 */
-.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+/* 数字格子 — 宽度由JS动态设置 */
+.dc{padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
@@ -269,18 +254,20 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
 
-/* 中奖圆球 — 充满格子 */
-.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;line-height:26px;border-radius:50%;font-size:13px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+/* 中奖圆球 — 尺寸由JS动态设置 */
+.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .hit-bai{background:linear-gradient(135deg,#e74c3c,#c0392b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(192,57,43,.4)}
 .hit-shi{background:linear-gradient(135deg,#3498db,#2980b9);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(41,128,185,.4)}
 .hit-ge{background:linear-gradient(135deg,#27ae60,#1e8449);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(39,174,96,.4)}
-/* 组选分布4种颜色 */
 .hit-zx1{background:linear-gradient(135deg,#9b59b6,#8e44ad);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(142,68,173,.45)}
 .hit-zx2{background:linear-gradient(135deg,#e67e22,#d35400);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(211,84,0,.4)}
 .hit-zx3{background:linear-gradient(135deg,#1abc9c,#16a085);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(22,160,133,.4)}
 .hit-zx4{background:linear-gradient(135deg,#e91e63,#c2185b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(194,24,91,.4)}
 
-.miss-val{font-size:11px;color:#aaa;line-height:36px;display:block}
+/* 底部按钮区 */
+.footer-bar{text-align:center;padding:10px;background:#fff;border-top:1px solid #eee;flex-shrink:0}
+.footer-bar button{padding:7px 20px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12.5px;margin:0 3px}
+.footer-bar button:hover{background:#f0f0f0}
 
 /* SVG连线层 */
 svg.trend-layer{position:absolute;top:0;left:0;pointer-events:none;z-index:15;overflow:visible}
