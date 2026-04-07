@@ -190,15 +190,16 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.1 ===== */
-/* 核心: 恢复固定像素宽度(max-content)保证号码球不重叠 + 
-   用body白色背景融合消除视觉空白 + overflow-x:auto处理窄屏滚动 */
+/* ===== CSS V6.3 ===== */
+/* 核心: max-content固定像素宽度保证号码球不重叠 + 
+   body/html min-width延伸到表格宽度消除右侧空白 + overflow-x:auto处理窄屏滚动 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-html{width:100%}
+html{display:block;min-width:100%}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
+  min-width:max-content;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -219,8 +220,8 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{width:100%;overflow-x:auto;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-size:12.5px;table-layout:fixed}
+.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -236,8 +237,8 @@ thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
-thead th.cd{min-width:26px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px;min-width:60px}thead th.cw{width:30px;min-width:24px}thead th.cn{width:56px;min-width:48px}
+thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
+thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -256,8 +257,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数据格子 — 用min-width保底不重叠，不设固定width让table-layout:fixed均分 */
-.dc{min-width:26px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative;overflow:visible}
+/* 数据格子 — 固定宽度30px，保证ball绝对定位不重叠 */
+.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
@@ -266,9 +267,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
 
-/* 中奖圆球 — 充满格子 */
-/* 中奖圆球 — 固定尺寸+绝对定位居中，不依赖父格子宽度 */
-.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;line-height:24px;border-radius:50%;font-size:12px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25);flex-shrink:0}
+/* 中奖圆球 — 绝对定位居中于固定宽度格子内 */
+.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;line-height:26px;border-radius:50%;font-size:13px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .hit-bai{background:linear-gradient(135deg,#e74c3c,#c0392b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(192,57,43,.4)}
 .hit-shi{background:linear-gradient(135deg,#3498db,#2980b9);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(41,128,185,.4)}
 .hit-ge{background:linear-gradient(135deg,#27ae60,#1e8449);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(39,174,96,.4)}
