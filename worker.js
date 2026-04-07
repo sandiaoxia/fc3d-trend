@@ -187,7 +187,6 @@ body{
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
   margin:0;padding:0;
-  width:100vw;overflow-x:hidden;
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
@@ -207,8 +206,8 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;width:100vw}
-table{border-collapse:collapse;width:100%;min-width:max-content;font-size:12.5px;table-layout:fixed}
+.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
