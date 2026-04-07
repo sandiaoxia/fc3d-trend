@@ -190,16 +190,18 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.3 ===== */
+/* ===== CSS V6.4 ===== */
 /* 核心: max-content固定像素宽度保证号码球不重叠 + 
-   body/html min-width延伸到表格宽度消除右侧空白 + overflow-x:auto处理窄屏滚动 */
+   全链路白色背景融合消除右侧视觉空白 + html层overflow-x处理宽屏滚动 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-html{display:block;min-width:100%}
+html{
+  background:#fff;
+  overflow-x:auto;
+}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  min-width:max-content;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -220,7 +222,7 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+.table-wrap{padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
 
 /* 表头 */
