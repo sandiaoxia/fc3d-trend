@@ -201,11 +201,10 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.8 ===== */
-/* 终极物理方案: 去掉所有fit-content/max-content不确定性,
-   用html{overflow-x:auto}作为唯一滚动容器,
-   table精确2686px固定宽度, 所有容器自然流动,
-   宽屏下右侧空白=白色=不可见 */
+/* ===== CSS V6.9 ===== */
+/* 基于Playwright精确诊断: 3840px视口下body被拉伸到100%=3840px,
+   导致所有block子元素=3840px但table只有2686px→1154px空白!
+   修复: body max-width锁死在表格宽度, html背景白填剩余空间 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
@@ -215,7 +214,8 @@ html{
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  min-width:2686px;  /* body最小宽度=表格精确宽度(72+30+84+2400) */
+  width:2686px;          /* 固定=表格宽度 */
+  max-width:100vw;       /* 窄屏时不超出视口 */
   -webkit-font-smoothing:antialiased;
 }
 
