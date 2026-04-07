@@ -66,6 +66,7 @@ function calcZuXuanMissing(data) {
 
 // ===== V5 表格渲染 =====
 // 列: 期号 | 星期 | 奖号 | 组选(0-9) | 百位走势(0-9) | 组选(0-9) | 十位走势(0-9) | 组选(0-9) | 个位走势(0-9) | 组选(0-9)
+// = 3信息列 + 7组×10数据列 = 73列 = 2286px
 function renderTable(data) {
   // 关键：反转数据，使最老期在上，最新期在下（期号递增）
   const revData = [...data].reverse();
@@ -78,8 +79,8 @@ function renderTable(data) {
   h += '<col class="ci" style="width:72px" />';
   h += '<col class="cw" style="width:30px" />';
   h += '<col class="cn" style="width:84px" />';
-  // 8组数据列，每组10列×30px = 300px，8组共2400px
-  for (let g = 0; g < 8; g++) {
+  // 7组数据列(4组选+3走势)，每组10列×30px = 300px，7组共2100px
+  for (let g = 0; g < 7; g++) {
     for (let d = 0; d < 10; d++) {
       h += '<col style="width:30px" />';
     }
@@ -217,9 +218,9 @@ html{
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  width:2686px;              /* 固定=表格精确宽度 */
+  width:2286px;              /* 固定=表格精确宽度(3信息列+7组×10数据列) */
   max-width:100vw;           /* 窄屏时收缩到视口宽度 */
-  min-width:2686px;          /* 不允许被压缩(窄屏靠滚动) */
+  min-width:2286px;          /* 不允许被压缩(窄屏靠滚动) */
   -webkit-font-smoothing:antialiased;
   box-shadow:0 0 40px rgba(0,0,0,.08);  /* 浮起感，区分内容与侧边背景 */
 }
@@ -242,8 +243,8 @@ body{
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-/* 表格固定宽度 = 期号72 + 星期30 + 奖号84 + 80列×30px = 2686px */
-table{border-collapse:collapse;width:2686px;table-layout:fixed;font-size:12.5px}
+/* 表格固定宽度 = 期号72 + 星期30 + 奖号84 + 70列×30px = 2286px */
+table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
