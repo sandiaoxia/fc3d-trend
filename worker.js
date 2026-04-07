@@ -86,11 +86,12 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
+  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 7组
+  // 第二行数字 0-9 x 8组
   h += '<tr>';
-  for (let g = 0; g < 7; g++) {
+  for (let g = 0; g < 8; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -172,6 +173,16 @@ function renderTable(data) {
       h += `</td>`;
     }
 
+    // ===== 组选分布 #4 (0-9) — 粉色系 =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx4">${d}</span>`;
+      }
+      h += `</td>`;
+    }
+
     h += '</tr>';
   });
 
@@ -182,10 +193,18 @@ function renderTable(data) {
 /* ===== CSS V5 ===== */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
+html{
+  overflow-x:hidden;
+  width:100%;
+  max-width:100vw;
+}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  width:100%;
+  max-width:100vw;
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
@@ -205,7 +224,7 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;display:block;max-width:100vw;box-sizing:border-box}
+.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;display:block;width:100%;max-width:100vw;box-sizing:border-box}
 table{border-collapse:collapse;width:max-content;font-size:12.5px;min-width:0}
 
 /* 表头 */
