@@ -165,7 +165,7 @@ function renderTable(data) {
       h += `</td>`;
     }
 
-    // ===== 组选分布 #3 (0-9) — 青色系 =====
+    // ===== 组选分布 #3 (0-9) — 金黄色系 =====
     for (let d of DIGITS) {
       const hit = row.numbers.includes(d);
       h += `<td class="dc dt-zx3" data-pos="zx3" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
@@ -247,10 +247,10 @@ thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:
 thead tr:first-child th{top:0;z-index:101}
 thead tr:nth-child(2) th{top:37px;z-index:100}
 
-/* 分类标题色 — 组选1(紫)、百位(红)、组选2(橙)、十位(蓝)、组选3(青)、个位(绿)、组选4(粉) */
+/* 分类标题色 — 组选1(紫)、百位(红)、组选2(橙)、十位(蓝)、组选3(金)、个位(绿)、组选4(粉) */
 thead th.sz{background:#e8daef;color:#6c3483;font-size:11.5px}
 thead th.sz2{background:#fdebd0;color:#b9770e;font-size:11.5px}
-thead th.sz3{background:#d1f2eb;color:#117a65;font-size:11.5px}
+thead th.sz3{background:#fcf3cf;color:#9a7d0a;font-size:11.5px}
 thead th.sz4{background:#fadbd8;color:#922b21;font-size:11.5px}
 thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
@@ -271,7 +271,7 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 
 /* 奖号球 */
 .nc{padding:2px 4px !important}
-.nc .b{display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;font-weight:700;font-size:14px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2)}
+.nc .b{display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;font-weight:700;font-size:16px;color:#fff;margin:0 1px;text-shadow:0 1px 1px rgba(0,0,0,.2)}
 .br{background:linear-gradient(135deg,#e74c3c,#c0392b)}
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
@@ -280,21 +280,21 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
-.dt-zx3{border-left:2px solid #a3e4d7}
+.dt-zx3{border-left:2px solid #f9e79f}
 .dt-zx4{border-left:2px solid #f5b7b1}
 .dt-bai{border-left:2px solid #f5d0d0}
 .dt-shi{border-left:2px solid #d0e4f5}
 .dt-ge{border-left:2px solid #d0f0d0}
 
 /* 中奖圆球 — 绝对定位居中于固定宽度格子内 */
-.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;line-height:26px;border-radius:50%;font-size:13px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.dc .ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;line-height:26px;border-radius:50%;font-size:15px;font-weight:700;color:#fff;z-index:5;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .hit-bai{background:linear-gradient(135deg,#e74c3c,#c0392b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(192,57,43,.4)}
 .hit-shi{background:linear-gradient(135deg,#3498db,#2980b9);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(41,128,185,.4)}
 .hit-ge{background:linear-gradient(135deg,#27ae60,#1e8449);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(39,174,96,.4)}
 /* 组选分布4种颜色 */
 .hit-zx1{background:linear-gradient(135deg,#9b59b6,#8e44ad);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(142,68,173,.45)}
 .hit-zx2{background:linear-gradient(135deg,#e67e22,#d35400);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(211,84,0,.4)}
-.hit-zx3{background:linear-gradient(135deg,#1abc9c,#16a085);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(22,160,133,.4)}
+.hit-zx3{background:linear-gradient(135deg,#f1c40f,#d4ac0d);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(212,172,13,.4)}
 .hit-zx4{background:linear-gradient(135deg,#e91e63,#c2185b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(194,24,91,.4)}
 
 .miss-val{font-size:11px;color:#aaa;line-height:36px;display:block}
