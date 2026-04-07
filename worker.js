@@ -86,11 +86,12 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
+  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 7组
+  // 第二行数字 0-9 x 8组
   h += '<tr>';
-  for (let g = 0; g < 7; g++) {
+  for (let g = 0; g < 8; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -172,6 +173,16 @@ function renderTable(data) {
       h += `</td>`;
     }
 
+    // ===== 组选分布 #4 (0-9) — 粉色系 =====
+    for (let d of DIGITS) {
+      const hit = row.numbers.includes(d);
+      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
+      if (hit) {
+        h += `<span class="ball hit-zx4">${d}</span>`;
+      }
+      h += `</td>`;
+    }
+
     h += '</tr>';
   });
 
@@ -186,7 +197,6 @@ body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
-  margin:0;padding:0;
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
@@ -223,8 +233,8 @@ thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
-thead th.cd{font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px;min-width:72px}thead th.cw{width:30px;min-width:30px}thead th.cn{width:56px;min-width:56px}
+thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
+thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -243,8 +253,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数字格子 — 自适应宽度 */
-.dc{height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+/* 数字格子 */
+.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
@@ -371,7 +381,6 @@ function drawTrends() {
 }
 
 setTimeout(drawTrends, 500);
-
 
 var resizeTimer;
 window.addEventListener('resize', function() {
