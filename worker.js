@@ -202,25 +202,24 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V7.4 ===== */
-/* Flex居中布局(验证有效): html做flex容器居中body，宽屏下内容居中两侧均匀。
-   表格固定2286px宽度，窄屏横向滚动。 */
+/* ===== CSS V7.5 ===== */
+/* 自动缩放布局: body固定2286px + JS自动scale()铺满视口。
+   宽屏下内容左右铺满(等价于自动缩放)，窄屏横向滚动。
+   信息列(期号/星期/奖号)保持固定px，数据列固定30px。 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
-  background:#f0f0f0;          /* 宽屏两侧露出浅灰背景 */
+  background:#f0f0f0;
   min-height:100vh;
-  display:flex;
-  justify-content:center;     /* 水平居中body */
-  align-items:flex-start;      /* 顶部对齐 */
+  overflow-x:hidden;           /* 防止缩放后出现横向滚动条 */
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
   width:2286px;               /* 固定=表格精确宽度 */
-  max-width:100vw;            /* 窄屏时收缩到视口宽度 */
+  max-width:100vw;            /* 窄屏时收缩 */
   min-width:2286px;           /* 不压缩(窄屏靠横向滚动) */
-  box-shadow:0 0 40px rgba(0,0,0,.08);  /* 浮起感，和两侧背景分离 */
+  box-shadow:0 0 40px rgba(0,0,0,.08);
   -webkit-font-smoothing:antialiased;
 }
 
@@ -316,6 +315,24 @@ window.toggleLines = function() {
   if (layer) layer.style.display = showLines ? 'block' : 'none';
 };
 
+/* ===== 自动缩放：让2286px内容铺满视口（不小于100%） ===== */
+function autoScale() {
+  var body = document.body;
+  var vw = window.innerWidth;
+  var targetWidth = 2286;   /* body实际内容宽 */
+  if (vw > targetWidth) {
+    var scale = vw / targetWidth;
+    body.style.transformOrigin = 'top center';
+    body.style.transform = 'scale(' + scale.toFixed(4) + ')';
+    /* 缩放后body占用的视觉高度 */
+    var fullHeight = body.scrollHeight * scale;
+    document.documentElement.style.height = fullHeight + 'px';
+  } else {
+    body.style.transform = 'none';
+    document.documentElement.style.height = '';
+  }
+}
+
 function drawTrends() {
   var table = document.getElementById('tt');
   if (!table) return;
@@ -406,14 +423,18 @@ function drawTrends() {
   });
 }
 
-setTimeout(drawTrends, 500);
+/* 初始化：先缩放适配 → 再画连线 */
+autoScale();
+setTimeout(function(){ drawTrends(); }, 600);
 
 var resizeTimer;
 window.addEventListener('resize', function() {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(function() {
+    /* 重缩放后重绘连线 */
     var layer = document.getElementById('trend-svg');
     if (layer) layer.remove();
+    autoScale();
     setTimeout(drawTrends, 400);
   }, 300);
 });
