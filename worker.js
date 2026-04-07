@@ -74,10 +74,10 @@ function renderTable(data) {
   const zxMiss = calcZuXuanMissing(revData);
   
   let h = '<table id="tt"><colgroup>';
-  // 信息列：期号72px + 星期30px + 奖号56px = 158px
+  // 信息列：期号72px + 星期30px + 奖号84px = 186px
   h += '<col class="ci" style="width:72px" />';
   h += '<col class="cw" style="width:30px" />';
-  h += '<col class="cn" style="width:56px" />';
+  h += '<col class="cn" style="width:84px" />';
   // 8组数据列，每组10列×30px = 300px，8组共2400px
   for (let g = 0; g < 8; g++) {
     for (let d = 0; d < 10; d++) {
@@ -201,20 +201,21 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.7 ===== */
-/* 终极方案: body width:fit-content 让页面收缩到内容宽度,
-   html背景白色填满剩余空间, table精确固定2658px无多余空间,
-   窄屏时由table-wrap的overflow-x:auto处理滚动 */
+/* ===== CSS V6.8 ===== */
+/* 终极物理方案: 去掉所有fit-content/max-content不确定性,
+   用html{overflow-x:auto}作为唯一滚动容器,
+   table精确2686px固定宽度, 所有容器自然流动,
+   宽屏下右侧空白=白色=不可见 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
   background:#fff;
+  overflow-x:auto;
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  width:fit-content;
-  max-width:100vw;
+  min-width:2686px;  /* body最小宽度=表格精确宽度(72+30+84+2400) */
   -webkit-font-smoothing:antialiased;
 }
 
@@ -236,8 +237,8 @@ body{
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-/* 表格固定宽度 = 期号72 + 星期30 + 奖号56 + 80列×30px = 2658px */
-table{border-collapse:collapse;width:2658px;table-layout:fixed;font-size:12.5px}
+/* 表格固定宽度 = 期号72 + 星期30 + 奖号84 + 80列×30px = 2686px */
+table{border-collapse:collapse;width:2686px;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -254,7 +255,7 @@ thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
 thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
+thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:84px}
 
 /* 数据行 */
 tbody tr{border:none}
