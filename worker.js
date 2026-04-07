@@ -190,21 +190,19 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V5 ===== */
+/* ===== CSS V6 ===== */
+/* 核心策略: table 用 width:100% + table-layout:fixed 填满容器，
+   配合每列固定 width，彻底消除任何缩放比例下的右侧空白 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-html{
-  overflow-x:hidden;
+html,body{
   width:100%;
-  max-width:100vw;
+  overflow-x:hidden;
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#f5f5f5;font-size:14px;color:#333;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-  width:100%;
-  max-width:100vw;
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;}
@@ -224,8 +222,8 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;display:block;width:100%;max-width:100vw;box-sizing:border-box}
-table{border-collapse:collapse;width:max-content;font-size:12.5px;min-width:0}
+.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
