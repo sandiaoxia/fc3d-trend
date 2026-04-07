@@ -202,27 +202,23 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V7.0 ===== */
-/* 核心方案: html用flex布局居中body，宽屏下空白均分两侧而非全在右边。
-   3840px视口: body=2686px居中显示，两侧各577px灰色背景。
-   窄屏(<2686px): body=max-width:100vw填满，table-wrap内滚动。 */
+/* ===== CSS V7.2 ===== */
+/* 全屏自适应: body+table都100%宽，table-layout:fixed自动拉伸数据列填满视口。
+   信息列(期号/星期/奖号)保持固定px，70个数据列均分剩余空间。
+   窄屏(<2286px): min-width保底，table-wrap内横向滚动。 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
-  background:#e8e8e8;
-  display:flex;
-  justify-content:center;    /* 水平居中body */
-  align-items:flex-start;    /* 顶部对齐 */
+  background:#fff;
   min-height:100vh;
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  width:2286px;              /* 固定=表格精确宽度(3信息列+7组×10数据列) */
-  max-width:100vw;           /* 窄屏时收缩到视口宽度 */
-  min-width:2286px;          /* 不允许被压缩(窄屏靠滚动) */
+  width:100%;                /* 填满视口 */
+  max-width:100vw;           /* 不超出视口 */
+  min-width:2286px;         /* 最小宽度=表格实际内容宽(窄屏靠滚动) */
   -webkit-font-smoothing:antialiased;
-  box-shadow:0 0 40px rgba(0,0,0,.08);  /* 浮起感，区分内容与侧边背景 */
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px}
@@ -243,8 +239,8 @@ body{
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
-/* 表格固定宽度 = 期号72 + 星期30 + 奖号84 + 70列×30px = 2286px */
-table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
+/* 表格100%填满视口: table-layout:fixed + 固定信息列 + 数据列自动均分 */
+table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px;min-width:2286px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
