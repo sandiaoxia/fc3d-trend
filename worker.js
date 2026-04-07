@@ -190,8 +190,9 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V5.10 ===== */
-/* 核心: 所有容器100%宽度链路 html→body→table-wrap→table, 彻底消除右侧空白 */
+/* ===== CSS V6.0 ===== */
+/* 核心策略: table-layout:auto + width:100% 让表格始终填满视口宽度，
+   数据列不设固定宽度由浏览器自动均分，ball绝对定位居中不受影响 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{width:100%;overflow-x:hidden}
@@ -199,6 +200,7 @@ body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
   width:100%;
+  overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -219,8 +221,8 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{width:100%;background:#fff;position:relative}
-table{border-collapse:collapse;width:100%;font-size:12.5px}
+.table-wrap{width:100%;overflow-x:auto;background:#fff;position:relative}
+table{border-collapse:collapse;width:100%;font-size:12.5px;table-layout:auto}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -236,8 +238,8 @@ thead th.sb{background:#ffe4de;color:#c0392b;font-size:11.5px}
 thead th.ss{background:#ddeaff;color:#2980b9;font-size:11.5px}
 thead th.sg{background:#ddf0dd;color:#27ae60;font-size:11.5px}
 
-thead th.cd{width:30px;font-weight:800;font-size:13px;color:#333;background:#fafafa}
-thead th.ci{width:72px}thead th.cw{width:30px}thead th.cn{width:56px}
+thead th.cd{font-weight:800;font-size:13px;color:#333;background:#fafafa}
+thead th.ci{width:7%}thead th.cw{width:3.5%}thead th.cn{width:6%}
 
 /* 数据行 */
 tbody tr{border:none}
@@ -256,8 +258,8 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数字格子 */
-.dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
+/* 数字格子 — 不设固定宽度，让浏览器自动均分 */
+.dc{height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
 .dt-zx3{border-left:2px solid #a3e4d7}
