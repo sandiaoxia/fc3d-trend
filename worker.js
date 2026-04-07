@@ -205,24 +205,24 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px}
+.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;min-width:max-content}
 .header h1{font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
 .header .sub{font-size:12px;opacity:.88;margin-bottom:8px}
 .header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 14px;font-size:11.5px}
 
-.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;min-width:max-content}
 .nav-tabs .tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
 .nav-tabs .tab.active{color:#e03a3a;font-weight:700;border-bottom-color:#e03a3a}
 .nav-tabs .tab:hover{color:#e03a3a}
 
-.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap}
+.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap;min-width:max-content}
 .toolbar .period-btn{padding:5px 14px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#fff;font-size:12px;transition:.2s}
 .toolbar .period-btn:hover{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .period-btn.active{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+.table-wrap{padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch;min-width:max-content}
 table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
 
 /* 表头 */
