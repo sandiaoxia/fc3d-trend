@@ -73,7 +73,18 @@ function renderTable(data) {
   const posMiss = calcPosMissing(revData);
   const zxMiss = calcZuXuanMissing(revData);
   
-  let h = '<table id="tt"><thead>';
+  let h = '<table id="tt"><colgroup>';
+  // 信息列：期号72px + 星期30px + 奖号56px = 158px
+  h += '<col class="ci" style="width:72px" />';
+  h += '<col class="cw" style="width:30px" />';
+  h += '<col class="cn" style="width:56px" />';
+  // 8组数据列，每组10列×30px = 300px，8组共2400px
+  for (let g = 0; g < 8; g++) {
+    for (let d = 0; d < 10; d++) {
+      h += '<col style="width:30px" />';
+    }
+  }
+  h += '</colgroup><thead>';
 
   // 第一行表头
   h += '<tr>';
@@ -190,9 +201,9 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.4 ===== */
-/* 核心: max-content固定像素宽度保证号码球不重叠 + 
-   全链路白色背景融合消除右侧视觉空白 + html层overflow-x处理宽屏滚动 */
+/* ===== CSS V6.6 ===== */
+/* 核心: table-layout:fixed + colgroup精确列宽 + 固定像素表格宽度 
+   彻底消除右侧空白 - 表格宽度精确计算无多余空间 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
@@ -222,8 +233,9 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch;min-width:max-content}
-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12.5px}
+.table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
+/* 表格固定宽度 = 期号72 + 星期30 + 奖号56 + 80列×30px = 2658px */
+table{border-collapse:collapse;width:2658px;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -259,7 +271,7 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .bl{background:linear-gradient(135deg,#3498db,#2980b9)}
 .bg{background:linear-gradient(135deg,#27ae60,#1e8449)}
 
-/* 数据格子 — 固定宽度30px，保证ball绝对定位不重叠 */
+/* 数据格子 — table-layout:fixed下精确30px宽度 */
 .dc{width:30px;height:36px;padding:0 !important;background:linear-gradient(#fff,#fefefa);position:relative}
 .dt-zx1{border-left:2px solid #d7bde2}
 .dt-zx2{border-left:2px solid #f5cba7}
