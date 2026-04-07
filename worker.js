@@ -201,32 +201,34 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.6 ===== */
-/* 核心: table-layout:fixed + colgroup精确列宽 + 固定像素表格宽度 
-   彻底消除右侧空白 - 表格宽度精确计算无多余空间 */
+/* ===== CSS V6.7 ===== */
+/* 终极方案: body width:fit-content 让页面收缩到内容宽度,
+   html背景白色填满剩余空间, table精确固定2658px无多余空间,
+   窄屏时由table-wrap的overflow-x:auto处理滚动 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
   background:#fff;
-  overflow-x:auto;
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
+  width:fit-content;
+  max-width:100vw;
   -webkit-font-smoothing:antialiased;
 }
 
-.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px;min-width:max-content}
+.header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px}
 .header h1{font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
 .header .sub{font-size:12px;opacity:.88;margin-bottom:8px}
 .header .update-info{display:inline-block;background:rgba(255,255,255,.18);border-radius:12px;padding:2px 14px;font-size:11.5px}
 
-.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;min-width:max-content}
+.nav-tabs{background:#fff;display:flex;align-items:center;border-bottom:2px solid #e03a3a;padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
 .nav-tabs .tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
 .nav-tabs .tab.active{color:#e03a3a;font-weight:700;border-bottom-color:#e03a3a}
 .nav-tabs .tab:hover{color:#e03a3a}
 
-.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap;min-width:max-content}
+.toolbar{background:#fffbf0;padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #eee;flex-wrap:wrap}
 .toolbar .period-btn{padding:5px 14px;border:1px solid #ddd;border-radius:4px;cursor:pointer;background:#fff;font-size:12px;transition:.2s}
 .toolbar .period-btn:hover{background:#e03a3a;color:#fff;border-color:#e03a3a}
 .toolbar .period-btn.active{background:#e03a3a;color:#fff;border-color:#e03a3a}
