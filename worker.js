@@ -217,7 +217,7 @@ body{
 .toolbar .expert-btn{margin-left:auto;padding:5px 16px;background:#e03a3a;color:#fff;border:none;border-radius:4px;font-size:12px;cursor:pointer}
 .toolbar .status-text{color:#999;font-size:11px;margin-left:auto}
 
-.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;display:inline-block;min-width:100%}
+.table-wrap{overflow-x:auto;padding:8px 4px;background:#fff;position:relative;-webkit-overflow-scrolling:touch;display:inline-block}
 table{border-collapse:collapse;width:max-content;font-size:12.5px}
 
 /* 表头 */
