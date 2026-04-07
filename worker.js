@@ -201,22 +201,27 @@ function renderTable(data) {
   return h;
 }
 
-/* ===== CSS V6.9 ===== */
-/* 基于Playwright精确诊断: 3840px视口下body被拉伸到100%=3840px,
-   导致所有block子元素=3840px但table只有2686px→1154px空白!
-   修复: body max-width锁死在表格宽度, html背景白填剩余空间 */
+/* ===== CSS V7.0 ===== */
+/* 核心方案: html用flex布局居中body，宽屏下空白均分两侧而非全在右边。
+   3840px视口: body=2686px居中显示，两侧各577px灰色背景。
+   窄屏(<2686px): body=max-width:100vw填满，table-wrap内滚动。 */
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{
-  background:#fff;
-  overflow-x:auto;
+  background:#e8e8e8;
+  display:flex;
+  justify-content:center;    /* 水平居中body */
+  align-items:flex-start;    /* 顶部对齐 */
+  min-height:100vh;
 }
 body{
   font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
   background:#fff;font-size:14px;color:#333;
-  width:2686px;          /* 固定=表格宽度 */
-  max-width:100vw;       /* 窄屏时不超出视口 */
+  width:2686px;              /* 固定=表格精确宽度 */
+  max-width:100vw;           /* 窄屏时收缩到视口宽度 */
+  min-width:2686px;          /* 不允许被压缩(窄屏靠滚动) */
   -webkit-font-smoothing:antialiased;
+  box-shadow:0 0 40px rgba(0,0,0,.08);  /* 浮起感，区分内容与侧边背景 */
 }
 
 .header{background:#e03a3a;color:#fff;text-align:center;padding:16px 20px 12px}
