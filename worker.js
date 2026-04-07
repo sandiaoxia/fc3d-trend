@@ -86,12 +86,11 @@ function renderTable(data) {
   h += '<th colspan="10" class="ss">十位号码走势</th>';
   h += '<th colspan="10" class="sz3">组选号码分布</th>';
   h += '<th colspan="10" class="sg">个位号码走势</th>';
-  h += '<th colspan="10" class="sz4">组选号码分布</th>';
   h += '</tr>';
 
-  // 第二行数字 0-9 x 8组
+  // 第二行数字 0-9 x 7组
   h += '<tr>';
-  for (let g = 0; g < 8; g++) {
+  for (let g = 0; g < 7; g++) {
     for (let d of DIGITS) {
       h += `<th class="cd">${d}</th>`;
     }
@@ -169,16 +168,6 @@ function renderTable(data) {
       h += `<td class="dc dt-ge" data-pos="ge" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
       if (hit) {
         h += `<span class="ball hit-ge">${d}</span>`;
-      }
-      h += `</td>`;
-    }
-
-    // ===== 组选分布 #4 (0-9) — 粉色系 =====
-    for (let d of DIGITS) {
-      const hit = row.numbers.includes(d);
-      h += `<td class="dc dt-zx4" data-pos="zx4" data-digit="${d}" data-row="${idx}" data-hit="${hit}">`;
-      if (hit) {
-        h += `<span class="ball hit-zx4">${d}</span>`;
       }
       h += `</td>`;
     }
