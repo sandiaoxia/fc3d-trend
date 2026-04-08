@@ -386,7 +386,7 @@ function drawTrends() {
       pathD += (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1);
     });
 
-    if (pathD) {
+      if (pathD) {
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       line.setAttribute('d', pathD);
       line.setAttribute('stroke', cfg.strokeColor);
@@ -396,30 +396,7 @@ function drawTrends() {
       line.setAttribute('stroke-linejoin', 'round');
       line.setAttribute('opacity', '0.65');
       svg.appendChild(line);
-
-      points.forEach(function(p) {
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', p.x);
-        circle.setAttribute('cy', p.y);
-        circle.setAttribute('r', '9');
-        circle.setAttribute('fill', cfg.color);
-        circle.setAttribute('stroke', '#ffffff');
-        circle.setAttribute('stroke-width', '1.8');
-        svg.appendChild(circle);
-
-        // 圆点内显示数字
-        var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        txt.setAttribute('x', p.x);
-        txt.setAttribute('y', p.y);
-        txt.setAttribute('text-anchor', 'middle');
-        txt.setAttribute('dominant-baseline', 'central');
-        txt.setAttribute('fill', '#ffffff');
-        txt.setAttribute('font-size', '10');
-        txt.setAttribute('font-weight', '700');
-        txt.textContent = p.digit;
-        svg.appendChild(txt);
-      });
-    }
+      }
   });
 }
 
