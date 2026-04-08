@@ -315,22 +315,18 @@ window.toggleLines = function() {
   if (layer) layer.style.display = showLines ? 'block' : 'none';
 };
 
-/* ===== 自动缩放：让2286px内容铺满视口（不小于100%） ===== */
+/* ===== 自动缩放：始终按视口宽度自适应（留安全边距防截断） ===== */
 function autoScale() {
   var body = document.body;
   var vw = window.innerWidth;
   var targetWidth = 2286;   /* body实际内容宽 */
-  if (vw > targetWidth) {
-    var scale = vw / targetWidth;
-    body.style.transformOrigin = 'top center';
-    body.style.transform = 'scale(' + scale.toFixed(4) + ')';
-    /* 缩放后body占用的视觉高度 */
-    var fullHeight = body.scrollHeight * scale;
-    document.documentElement.style.height = fullHeight + 'px';
-  } else {
-    body.style.transform = 'none';
-    document.documentElement.style.height = '';
-  }
+  /* 始终缩放：留16px(左右各8px)安全边距；上限100%(不放大) */
+  var scale = Math.min(1, Math.max(0.30, (vw - 16) / targetWidth));
+  body.style.transformOrigin = 'top left';
+  body.style.transform = 'scale(' + scale.toFixed(4) + ')';
+  /* 缩放后body占用的视觉高度 */
+  var fullHeight = body.scrollHeight * scale;
+  document.documentElement.style.height = fullHeight + 'px';
 }
 
 function drawTrends() {
