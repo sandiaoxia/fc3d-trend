@@ -342,10 +342,10 @@ function drawTrends() {
   var tRect = table.getBoundingClientRect();
   var tbRect = tbody.getBoundingClientRect();
 
-  /* 获取当前缩放比例 */
+  /* 获取当前缩放比例 — CSS transform: matrix(sx, 0, 0, sy, tx, ty) */
   var bodyStyle = window.getComputedStyle(document.body);
   var tfm = bodyStyle.transform;
-  var tfmMatch = tfm.match(/matrix\(([\d.]+)\)/);
+  var tfmMatch = tfm.match(/matrix\(\s*([-\d.]+)/);
   var curScale = tfmMatch ? parseFloat(tfmMatch[1]) : 1;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
