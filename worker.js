@@ -414,18 +414,60 @@ window.addEventListener('resize', function() {
 })();
 `;
 
+// 获取数据（优先从KV缓存，失败则实时获取）
+async function getLotteryData(env) {
+  // 尝试从KV读取缓存
+  if (env.LOTTERY_CACHE) {
+    try {
+      const cached = await env.LOTTERY_CACHE.get('lottery_data', 'json');
+      if (cached && cached.data && cached.data.length > 0) {
+        // 检查缓存是否过期（超过2小时）
+        const cacheTime = new Date(cached.timestamp).getTime();
+        const now = Date.now();
+        if (now - cacheTime < 2 * 60 * 60 * 1000) {
+          return { data: cached.data, source: 'cache', timestamp: cached.timestamp };
+        }
+      }
+    } catch (e) {
+      console.log('KV读取失败:', e.message);
+    }
+  }
+  
+  // 实时获取
+  const r = await fetch(API_URL, { headers: FETCH_HEADERS });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  if (j.code !== 1) throw new Error(j.info || 'API error');
+  const data = processData(j);
+  
+  // 保存到KV
+  if (env.LOTTERY_CACHE) {
+    try {
+      await env.LOTTERY_CACHE.put('lottery_data', JSON.stringify({
+        data: data,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (e) {
+      console.log('KV保存失败:', e.message);
+    }
+  }
+  
+  return { data: data, source: 'api', timestamp: new Date().toISOString() };
+}
+
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     if (url.pathname === '/api/data') {
       try {
-        const r = await fetch(API_URL, { headers: FETCH_HEADERS });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const j = await r.json();
-        if (j.code !== 1) throw new Error(j.info || 'API error');
-        return new Response(JSON.stringify(processData(j)), {
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        const result = await getLotteryData(env);
+        return new Response(JSON.stringify(result.data), {
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Access-Control-Allow-Origin': '*',
+            'X-Data-Source': result.source
+          }
         });
       } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), { status:500 });
@@ -433,12 +475,9 @@ export default {
     }
 
     try {
-      const r = await fetch(API_URL, { headers: FETCH_HEADERS });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const j = await r.json();
-      if (j.code !== 1) throw new Error(j.info || 'API error');
+      const result = await getLotteryData(env);
 
-      const data = processData(j);
+      const data = result.data;
       // 反转后：第一行是最老期，最后一行是最新期
       const revData = [...data].reverse();
       const oldestIssue = revData.length > 0 ? revData[0].issue : '';
@@ -508,6 +547,23 @@ export default {
         + '<button onclick="location.reload()">重新加载</button></div></body></html>',
         { status:500, headers:{'Content-Type':'text/html;charset=utf-8'} }
       );
+    }
+  },
+  
+  // 定时任务：每天21:45(北京时间)自动更新数据到KV
+  async scheduled(event, env, ctx) {
+    console.log('定时任务触发:', new Date().toISOString());
+    try {
+      const result = await getLotteryData(env);
+      console.log('数据更新成功:', result.data.length, '期, 来源:', result.source);
+      
+      // 发送通知（可选）
+      if (result.data.length > 0) {
+        const latest = result.data[result.data.length - 1];
+        console.log('最新期号:', latest.issue, '开奖号:', latest.numbers.join(''));
+      }
+    } catch (e) {
+      console.error('定时任务失败:', e.message);
     }
   }
 };

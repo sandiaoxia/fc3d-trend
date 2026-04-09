@@ -1,3 +1,10 @@
 name = "fc3d-trend"
 main = "worker.js"
 compatibility_date = "2024-01-01"
+
+# 每天21:45(北京时间)自动更新数据 = 13:45 UTC
+crons = ["45 13 * * *"]
+
+[[kv_namespaces]]
+binding = "LOTTERY_CACHE"
+id = "fc3d-trend-cache"
