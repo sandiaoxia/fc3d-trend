@@ -339,23 +339,25 @@ function drawTrends() {
   if (oldLayer) oldLayer.remove();
 
   var tbody = table.querySelector('tbody');
-  var tRect = table.getBoundingClientRect();
-  var tbRect = tbody.getBoundingClientRect();
+  if (!tbody) return;
   
   // 获取当前缩放比例
   var scale = window.currentScale || 1;
+  
+  // 使用未缩放的实际尺寸
+  var svgWidth = tbody.scrollWidth;
+  var svgHeight = tbody.scrollHeight;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  // SVG尺寸使用未缩放的实际尺寸
-  svg.setAttribute('width', tbRect.width / scale);
-  svg.setAttribute('height', tbRect.height / scale);
+  svg.setAttribute('width', svgWidth);
+  svg.setAttribute('height', svgHeight);
   svg.style.position = 'absolute';
-  svg.style.top = ((tbRect.top - tRect.top) / scale) + 'px';
-  svg.style.left = ((tbRect.left - tRect.left) / scale) + 'px';
-  table.style.position = 'relative';
-  table.appendChild(svg);
+  svg.style.top = '0';
+  svg.style.left = '0';
+  tbody.style.position = 'relative';
+  tbody.appendChild(svg);
 
   // 只对三个位置画走势连线
   var configs = [
@@ -372,10 +374,15 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
-      var ballRect = ball.getBoundingClientRect();
-      // 将缩放后的坐标转换为未缩放坐标，获取圆心
-      var cx = (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2;
-      var cy = (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2;
+      // 获取 cell 在 tbody 中的相对位置（未缩放坐标）
+      var cellOffsetLeft = cell.offsetLeft;
+      var cellOffsetTop = cell.offsetTop;
+      var cellWidth = cell.offsetWidth;
+      var cellHeight = cell.offsetHeight;
+      
+      // 圆心坐标 = cell 中心
+      var cx = cellOffsetLeft + cellWidth / 2;
+      var cy = cellOffsetTop + cellHeight / 2;
       // 圆圈半径 13px（未缩放）
       var radius = 13;
       
