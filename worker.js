@@ -494,7 +494,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.6</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
