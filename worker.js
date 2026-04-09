@@ -322,6 +322,8 @@ function autoScale() {
   var targetWidth = 2286;   /* body实际内容宽 */
   /* 始终缩放：留16px(左右各8px)安全边距；上限100%(不放大) */
   var scale = Math.min(1, Math.max(0.30, (vw - 16) / targetWidth));
+  // 保存当前缩放比例，供drawTrends使用
+  window.currentScale = scale;
   body.style.transformOrigin = 'top left';
   body.style.transform = 'scale(' + scale.toFixed(4) + ')';
   /* 缩放后body占用的视觉高度 */
@@ -339,15 +341,19 @@ function drawTrends() {
   var tbody = table.querySelector('tbody');
   var tRect = table.getBoundingClientRect();
   var tbRect = tbody.getBoundingClientRect();
+  
+  // 获取当前缩放比例
+  var scale = window.currentScale || 1;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  svg.setAttribute('width', tbRect.width);
-  svg.setAttribute('height', tbRect.height);
+  // SVG尺寸使用未缩放的实际尺寸
+  svg.setAttribute('width', tbRect.width / scale);
+  svg.setAttribute('height', tbRect.height / scale);
   svg.style.position = 'absolute';
-  svg.style.top = (tbRect.top - tRect.top) + 'px';
-  svg.style.left = (tbRect.left - tRect.left) + 'px';
+  svg.style.top = ((tbRect.top - tRect.top) / scale) + 'px';
+  svg.style.left = ((tbRect.left - tRect.left) / scale) + 'px';
   table.style.position = 'relative';
   table.appendChild(svg);
 
@@ -367,9 +373,10 @@ function drawTrends() {
       if (!ball) return;
       
       var ballRect = ball.getBoundingClientRect();
+      // 将缩放后的坐标转换为未缩放坐标
       points.push({
-        x: ballRect.left - tbRect.left + ballRect.width / 2,
-        y: ballRect.top - tbRect.top + ballRect.height / 2,
+        x: (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2,
+        y: (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
