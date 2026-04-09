@@ -339,17 +339,29 @@ function drawTrends() {
   if (oldLayer) oldLayer.remove();
 
   var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  
+  // 获取当前缩放比例
+  var scale = window.currentScale || 1;
+  
+  // 获取 tbody 相对于 table 的未缩放尺寸
   var tRect = table.getBoundingClientRect();
   var tbRect = tbody.getBoundingClientRect();
+  
+  // 计算未缩放的尺寸和位置
+  var svgWidth = tbRect.width / scale;
+  var svgHeight = tbRect.height / scale;
+  var svgTop = (tbRect.top - tRect.top) / scale;
+  var svgLeft = (tbRect.left - tRect.left) / scale;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  svg.setAttribute('width', tbRect.width);
-  svg.setAttribute('height', tbRect.height);
+  svg.setAttribute('width', svgWidth);
+  svg.setAttribute('height', svgHeight);
   svg.style.position = 'absolute';
-  svg.style.top = (tbRect.top - tRect.top) + 'px';
-  svg.style.left = (tbRect.left - tRect.left) + 'px';
+  svg.style.top = svgTop + 'px';
+  svg.style.left = svgLeft + 'px';
   table.style.position = 'relative';
   table.appendChild(svg);
 
@@ -368,10 +380,17 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
+      // 获取缩放后的视口坐标
       var ballRect = ball.getBoundingClientRect();
+      
+      // 转换为未缩放的 SVG 内部坐标
+      // (ballRect.left - tbRect.left) 是缩放后的偏移，除以 scale 得到未缩放值
+      var cx = (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2;
+      var cy = (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2;
+      
       points.push({
-        x: ballRect.left - tbRect.left + ballRect.width / 2,
-        y: ballRect.top - tbRect.top + ballRect.height / 2,
+        x: cx,
+        y: cy,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
