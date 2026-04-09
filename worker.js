@@ -445,7 +445,7 @@ function drawTrends() {
 
 /* 初始化：先缩放适配 → 再画连线 */
 autoScale();
-setTimeout(function(){ drawTrends(); }, 600);
+setTimeout(function(){ drawTrends(); }, 1000);
 
 var resizeTimer;
 window.addEventListener('resize', function() {
@@ -455,7 +455,7 @@ window.addEventListener('resize', function() {
     var layer = document.getElementById('trend-svg');
     if (layer) layer.remove();
     autoScale();
-    setTimeout(drawTrends, 400);
+    setTimeout(drawTrends, 800);
   }, 300);
 });
 })();
