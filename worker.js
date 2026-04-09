@@ -374,15 +374,19 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
-      // 获取 cell 在 tbody 中的相对位置（未缩放坐标）
-      var cellOffsetLeft = cell.offsetLeft;
-      var cellOffsetTop = cell.offsetTop;
-      var cellWidth = cell.offsetWidth;
-      var cellHeight = cell.offsetHeight;
+      // 计算 cell 相对于 tbody 的累积偏移量
+      var cx = 0, cy = 0;
+      var el = cell;
+      while (el && el !== tbody) {
+        cx += el.offsetLeft;
+        cy += el.offsetTop;
+        el = el.offsetParent;
+      }
       
-      // 圆心坐标 = cell 中心
-      var cx = cellOffsetLeft + cellWidth / 2;
-      var cy = cellOffsetTop + cellHeight / 2;
+      // 加上 cell 自身中心偏移
+      cx += cell.offsetWidth / 2;
+      cy += cell.offsetHeight / 2;
+      
       // 圆圈半径 13px（未缩放）
       var radius = 13;
       
