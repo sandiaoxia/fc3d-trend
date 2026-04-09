@@ -7,4 +7,4 @@ crons = ["45 13 * * *"]
 
 [[kv_namespaces]]
 binding = "LOTTERY_CACHE"
-id = "fc3d-trend-cache"
+id = "fee8641bc582441794ebb15b3188ae3d"
