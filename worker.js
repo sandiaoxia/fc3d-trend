@@ -339,27 +339,17 @@ function drawTrends() {
   if (oldLayer) oldLayer.remove();
 
   var tbody = table.querySelector('tbody');
-  if (!tbody) return;
-  
-  // 获取当前缩放比例
-  var scale = window.currentScale || 1;
-  
-  // 获取 tbody 相对于 table 的位置
-  var tableRect = table.getBoundingClientRect();
-  var tbodyRect = tbody.getBoundingClientRect();
-  var tbodyTop = (tbodyRect.top - tableRect.top) / scale;
-  var tbodyLeft = (tbodyRect.left - tableRect.left) / scale;
-  var svgWidth = tbodyRect.width / scale;
-  var svgHeight = tbodyRect.height / scale;
+  var tRect = table.getBoundingClientRect();
+  var tbRect = tbody.getBoundingClientRect();
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  svg.setAttribute('width', svgWidth);
-  svg.setAttribute('height', svgHeight);
+  svg.setAttribute('width', tbRect.width);
+  svg.setAttribute('height', tbRect.height);
   svg.style.position = 'absolute';
-  svg.style.top = tbodyTop + 'px';
-  svg.style.left = tbodyLeft + 'px';
+  svg.style.top = (tbRect.top - tRect.top) + 'px';
+  svg.style.left = (tbRect.left - tRect.left) + 'px';
   table.style.position = 'relative';
   table.appendChild(svg);
 
@@ -378,21 +368,10 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
-      // 获取 cell 和 tbody 的矩形位置（缩放后的视口坐标）
-      var cellRect = cell.getBoundingClientRect();
-      var tbodyRect = tbody.getBoundingClientRect();
-      
-      // 计算相对于 tbody 的未缩放坐标
-      var cx = (cellRect.left - tbodyRect.left) / scale + (cellRect.width / scale) / 2;
-      var cy = (cellRect.top - tbodyRect.top) / scale + (cellRect.height / scale) / 2;
-      
-      // 圆圈半径 13px（未缩放）
-      var radius = 13;
-      
+      var ballRect = ball.getBoundingClientRect();
       points.push({
-        x: cx,
-        y: cy,
-        radius: radius,
+        x: ballRect.left - tbRect.left + ballRect.width / 2,
+        y: ballRect.top - tbRect.top + ballRect.height / 2,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
@@ -400,34 +379,10 @@ function drawTrends() {
 
     if (points.length < 2) return;
 
-    // 计算连接圆圈边缘的点，避免线条挡住数字
-    function getEdgePoint(p1, p2, radius) {
-      var dx = p2.x - p1.x;
-      var dy = p2.y - p1.y;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist === 0) return { x: p1.x, y: p1.y };
-      var ratio = radius / dist;
-      return {
-        x: p1.x + dx * ratio,
-        y: p1.y + dy * ratio
-      };
-    }
-
     var pathD = '';
-    for (var i = 0; i < points.length - 1; i++) {
-      var p1 = points[i];
-      var p2 = points[i + 1];
-      var start = getEdgePoint(p1, p2, p1.radius);
-      var end = getEdgePoint(p2, p1, p2.radius);
-      
-      if (i === 0) {
-        pathD += 'M' + start.x.toFixed(1) + ',' + start.y.toFixed(1);
-      } else {
-        // 中间点，从前一个边缘点连到当前边缘点
-        pathD += ' L' + start.x.toFixed(1) + ',' + start.y.toFixed(1);
-      }
-      pathD += ' L' + end.x.toFixed(1) + ',' + end.y.toFixed(1);
-    }
+    points.forEach(function(p, i) {
+      pathD += (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1);
+    });
 
     if (pathD) {
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
