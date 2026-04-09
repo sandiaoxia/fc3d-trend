@@ -344,9 +344,13 @@ function drawTrends() {
   // 获取当前缩放比例
   var scale = window.currentScale || 1;
   
-  // 使用未缩放的实际尺寸
-  var svgWidth = tbody.scrollWidth;
-  var svgHeight = tbody.scrollHeight;
+  // 获取 tbody 相对于 table 的位置
+  var tableRect = table.getBoundingClientRect();
+  var tbodyRect = tbody.getBoundingClientRect();
+  var tbodyTop = (tbodyRect.top - tableRect.top) / scale;
+  var tbodyLeft = (tbodyRect.left - tableRect.left) / scale;
+  var svgWidth = tbodyRect.width / scale;
+  var svgHeight = tbodyRect.height / scale;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
@@ -354,10 +358,10 @@ function drawTrends() {
   svg.setAttribute('width', svgWidth);
   svg.setAttribute('height', svgHeight);
   svg.style.position = 'absolute';
-  svg.style.top = '0';
-  svg.style.left = '0';
-  tbody.style.position = 'relative';
-  tbody.appendChild(svg);
+  svg.style.top = tbodyTop + 'px';
+  svg.style.left = tbodyLeft + 'px';
+  table.style.position = 'relative';
+  table.appendChild(svg);
 
   // 只对三个位置画走势连线
   var configs = [
@@ -374,18 +378,13 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
-      // 计算 cell 相对于 tbody 的累积偏移量
-      var cx = 0, cy = 0;
-      var el = cell;
-      while (el && el !== tbody) {
-        cx += el.offsetLeft;
-        cy += el.offsetTop;
-        el = el.offsetParent;
-      }
+      // 获取 cell 和 tbody 的矩形位置（缩放后的视口坐标）
+      var cellRect = cell.getBoundingClientRect();
+      var tbodyRect = tbody.getBoundingClientRect();
       
-      // 加上 cell 自身中心偏移
-      cx += cell.offsetWidth / 2;
-      cy += cell.offsetHeight / 2;
+      // 计算相对于 tbody 的未缩放坐标
+      var cx = (cellRect.left - tbodyRect.left) / scale + (cellRect.width / scale) / 2;
+      var cy = (cellRect.top - tbodyRect.top) / scale + (cellRect.height / scale) / 2;
       
       // 圆圈半径 13px（未缩放）
       var radius = 13;
