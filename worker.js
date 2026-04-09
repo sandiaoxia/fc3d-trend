@@ -339,29 +339,17 @@ function drawTrends() {
   if (oldLayer) oldLayer.remove();
 
   var tbody = table.querySelector('tbody');
-  if (!tbody) return;
-  
-  // 获取当前缩放比例
-  var scale = window.currentScale || 1;
-  
-  // 获取 tbody 相对于 table 的未缩放尺寸
   var tRect = table.getBoundingClientRect();
   var tbRect = tbody.getBoundingClientRect();
-  
-  // 计算未缩放的尺寸和位置
-  var svgWidth = tbRect.width / scale;
-  var svgHeight = tbRect.height / scale;
-  var svgTop = (tbRect.top - tRect.top) / scale;
-  var svgLeft = (tbRect.left - tRect.left) / scale;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  svg.setAttribute('width', svgWidth);
-  svg.setAttribute('height', svgHeight);
+  svg.setAttribute('width', tbRect.width);
+  svg.setAttribute('height', tbRect.height);
   svg.style.position = 'absolute';
-  svg.style.top = svgTop + 'px';
-  svg.style.left = svgLeft + 'px';
+  svg.style.top = (tbRect.top - tRect.top) + 'px';
+  svg.style.left = (tbRect.left - tRect.left) + 'px';
   table.style.position = 'relative';
   table.appendChild(svg);
 
@@ -380,17 +368,10 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       
-      // 获取缩放后的视口坐标
       var ballRect = ball.getBoundingClientRect();
-      
-      // 转换为未缩放的 SVG 内部坐标
-      // (ballRect.left - tbRect.left) 是缩放后的偏移，除以 scale 得到未缩放值
-      var cx = (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2;
-      var cy = (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2;
-      
       points.push({
-        x: cx,
-        y: cy,
+        x: ballRect.left - tbRect.left + ballRect.width / 2,
+        y: ballRect.top - tbRect.top + ballRect.height / 2,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
@@ -413,32 +394,43 @@ function drawTrends() {
       line.setAttribute('stroke-linejoin', 'round');
       line.setAttribute('opacity', '0.65');
       svg.appendChild(line);
+
+      points.forEach(function(p) {
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', '9');
+        circle.setAttribute('fill', cfg.color);
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', '1.8');
+        svg.appendChild(circle);
+
+        var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', p.x);
+        txt.setAttribute('y', p.y);
+        txt.setAttribute('text-anchor', 'middle');
+        txt.setAttribute('dominant-baseline', 'central');
+        txt.setAttribute('fill', '#ffffff');
+        txt.setAttribute('font-size', '10');
+        txt.setAttribute('font-weight', '700');
+        txt.textContent = p.digit;
+        svg.appendChild(txt);
+      });
     }
   });
 }
 
-/* 初始化：先缩放适配 → 等待渲染完成 → 再画连线 */
+/* 初始化：先缩放适配 → 再画连线 */
 autoScale();
-// 使用双重requestAnimationFrame确保transform渲染完成
-requestAnimationFrame(function() {
-  requestAnimationFrame(function() {
-    drawTrends();
-  });
-});
+setTimeout(drawTrends, 500);
 
 var resizeTimer;
 window.addEventListener('resize', function() {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(function() {
-    /* 重缩放后重绘连线 */
     var layer = document.getElementById('trend-svg');
     if (layer) layer.remove();
-    autoScale();
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        drawTrends();
-      });
-    });
+    setTimeout(drawTrends, 400);
   }, 300);
 });
 })();
