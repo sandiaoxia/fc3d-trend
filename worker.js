@@ -302,7 +302,7 @@ td{border:1px solid #e8dfd2;text-align:center;height:36px;vertical-align:middle;
 .miss-val{font-size:11px;color:#aaa;line-height:36px;display:block}
 
 /* SVG连线层 */
-svg.trend-layer{position:absolute;top:0;left:0;pointer-events:none;z-index:15;overflow:visible}
+svg.trend-layer{position:absolute;top:0;left:0;pointer-events:none;z-index:2;overflow:visible}
 `;
 
 const JS = `
@@ -373,10 +373,16 @@ function drawTrends() {
       if (!ball) return;
       
       var ballRect = ball.getBoundingClientRect();
-      // 将缩放后的坐标转换为未缩放坐标
+      // 将缩放后的坐标转换为未缩放坐标，获取圆心
+      var cx = (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2;
+      var cy = (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2;
+      // 圆圈半径 13px（未缩放）
+      var radius = 13;
+      
       points.push({
-        x: (ballRect.left - tbRect.left) / scale + (ballRect.width / scale) / 2,
-        y: (ballRect.top - tbRect.top) / scale + (ballRect.height / scale) / 2,
+        x: cx,
+        y: cy,
+        radius: radius,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
@@ -384,12 +390,36 @@ function drawTrends() {
 
     if (points.length < 2) return;
 
-    var pathD = '';
-    points.forEach(function(p, i) {
-      pathD += (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1);
-    });
+    // 计算连接圆圈边缘的点，避免线条挡住数字
+    function getEdgePoint(p1, p2, radius) {
+      var dx = p2.x - p1.x;
+      var dy = p2.y - p1.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist === 0) return { x: p1.x, y: p1.y };
+      var ratio = radius / dist;
+      return {
+        x: p1.x + dx * ratio,
+        y: p1.y + dy * ratio
+      };
+    }
 
-      if (pathD) {
+    var pathD = '';
+    for (var i = 0; i < points.length - 1; i++) {
+      var p1 = points[i];
+      var p2 = points[i + 1];
+      var start = getEdgePoint(p1, p2, p1.radius);
+      var end = getEdgePoint(p2, p1, p2.radius);
+      
+      if (i === 0) {
+        pathD += 'M' + start.x.toFixed(1) + ',' + start.y.toFixed(1);
+      } else {
+        // 中间点，从前一个边缘点连到当前边缘点
+        pathD += ' L' + start.x.toFixed(1) + ',' + start.y.toFixed(1);
+      }
+      pathD += ' L' + end.x.toFixed(1) + ',' + end.y.toFixed(1);
+    }
+
+    if (pathD) {
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       line.setAttribute('d', pathD);
       line.setAttribute('stroke', cfg.strokeColor);
@@ -399,7 +429,7 @@ function drawTrends() {
       line.setAttribute('stroke-linejoin', 'round');
       line.setAttribute('opacity', '0.65');
       svg.appendChild(line);
-      }
+    }
   });
 }
 
