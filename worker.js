@@ -540,7 +540,7 @@ export default {
         + '<script>' + JS + '</script></body></html>';
 
       return new Response(body, {
-        headers: { 'Content-Type':'text/html;charset=utf-8', 'Cache-Control':'public,max-age=300' }
+        headers: { 'Content-Type':'text/html;charset=utf-8', 'Cache-Control':'public,max-age=30' }
       });
 
     } catch (e) {
