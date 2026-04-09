@@ -398,9 +398,14 @@ function drawTrends() {
   });
 }
 
-/* 初始化：先缩放适配 → 再画连线 */
+/* 初始化：先缩放适配 → 等待渲染完成 → 再画连线 */
 autoScale();
-setTimeout(function(){ drawTrends(); }, 1000);
+// 使用双重requestAnimationFrame确保transform渲染完成
+requestAnimationFrame(function() {
+  requestAnimationFrame(function() {
+    drawTrends();
+  });
+});
 
 var resizeTimer;
 window.addEventListener('resize', function() {
@@ -410,7 +415,11 @@ window.addEventListener('resize', function() {
     var layer = document.getElementById('trend-svg');
     if (layer) layer.remove();
     autoScale();
-    setTimeout(drawTrends, 800);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        drawTrends();
+      });
+    });
   }, 300);
 });
 })();
