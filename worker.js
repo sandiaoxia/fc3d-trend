@@ -342,18 +342,11 @@ function drawTrends() {
   var tRect = table.getBoundingClientRect();
   var tbRect = tbody.getBoundingClientRect();
 
-  /* 获取当前缩放比例 — CSS transform: matrix(sx, 0, 0, sy, tx, ty) */
-  var bodyStyle = window.getComputedStyle(document.body);
-  var tfm = bodyStyle.transform;
-  var tfmMatch = tfm.match(/matrix\(\s*([-\d.]+)/);
-  var curScale = tfmMatch ? parseFloat(tfmMatch[1]) : 1;
-
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('class', 'trend-layer trend-path');
-  /* SVG 内部尺寸用未缩放的表格实际尺寸 */
-  svg.setAttribute('width', tbRect.width / curScale);
-  svg.setAttribute('height', tbRect.height / curScale);
+  svg.setAttribute('width', tbRect.width);
+  svg.setAttribute('height', tbRect.height);
   svg.style.position = 'absolute';
   svg.style.top = (tbRect.top - tRect.top) + 'px';
   svg.style.left = (tbRect.left - tRect.left) + 'px';
@@ -376,10 +369,9 @@ function drawTrends() {
       if (!ball) return;
       
       var ballRect = ball.getBoundingClientRect();
-      /* getBoundingClientRect 返回视觉坐标（已含scale），除以curScale还原到SVG内部坐标系 */
       points.push({
-        x: (ballRect.left - tbRect.left + ballRect.width / 2) / curScale,
-        y: (ballRect.top - tbRect.top + ballRect.height / 2) / curScale,
+        x: ballRect.left - tbRect.left + ballRect.width / 2,
+        y: ballRect.top - tbRect.top + ballRect.height / 2,
         digit: cell.dataset.digit,
         row: parseInt(cell.dataset.row)
       });
@@ -396,7 +388,7 @@ function drawTrends() {
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       line.setAttribute('d', pathD);
       line.setAttribute('stroke', cfg.strokeColor);
-      line.setAttribute('stroke-width', Math.max(1, 1.8 / curScale));
+      line.setAttribute('stroke-width', '1.8');
       line.setAttribute('fill', 'none');
       line.setAttribute('stroke-linecap', 'round');
       line.setAttribute('stroke-linejoin', 'round');
