@@ -331,6 +331,12 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
+/* V7.8 走势线绘制 — 视口坐标系方案
+ * 原理：SVG 使用 position:fixed，坐标 = getBoundingClientRect() 返回的视口像素。
+ * 无论 body 如何缩放，getBoundingClientRect() 始终返回视口像素，
+ * fixed 元素的定位也始终相对于视口，两者天然一致。
+ * 不需要计算任何缩放因子，不依赖任何父元素的 transform 状态。
+ */
 function drawTrends() {
   var table = document.getElementById('tt');
   if (!table) return;
@@ -338,63 +344,63 @@ function drawTrends() {
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  var tbody = table.querySelector('tbody');
-  var tRect = table.getBoundingClientRect();
-  var tbRect = tbody.getBoundingClientRect();
+  /* SVG 提升到 body 层级，使用视口坐标系 */
+  var vw = window.innerWidth;
+  var vh = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
-  svg.setAttribute('class', 'trend-layer trend-path');
-  svg.setAttribute('width', tbRect.width);
-  svg.setAttribute('height', tbRect.height);
-  svg.style.position = 'absolute';
-  svg.style.top = (tbRect.top - tRect.top) + 'px';
-  svg.style.left = (tbRect.left - tRect.left) + 'px';
-  table.style.position = 'relative';
-  table.appendChild(svg);
+  svg.setAttribute('width', String(vw));
+  svg.setAttribute('height', String(vh));
+  svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
+  /* 固定定位：坐标直接对应视口像素，不受任何 CSS transform 影响 */
+  svg.style.position = 'fixed';
+  svg.style.top = '0';
+  svg.style.left = '0';
+  svg.style.zIndex = '2';
+  svg.style.pointerEvents = 'none';
+  document.body.appendChild(svg);
 
-  // 只对三个位置画走势连线
   var configs = [
-    { pos: 'bai', color: '#e74c3c', strokeColor: '#c0392b' },
-    { pos: 'shi', color: '#3498db', strokeColor: '#2980b9' },
-    { pos: 'ge',  color: '#27ae60', strokeColor: '#1e8449' }
+    { pos: 'bai', strokeColor: '#c0392b' },
+    { pos: 'shi', strokeColor: '#2980b9' },
+    { pos: 'ge',  strokeColor: '#1e8449' }
   ];
 
   configs.forEach(function(cfg) {
     var points = [];
     var cells = document.querySelectorAll('td[data-pos="' + cfg.pos + '"][data-hit="true"]');
-    
+
     cells.forEach(function(cell) {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
-      
-      var ballRect = ball.getBoundingClientRect();
+
+      /* getBoundingClientRect() 返回视口像素坐标，与 SVG 的 viewBox 完全一致 */
+      var br = ball.getBoundingClientRect();
       points.push({
-        x: ballRect.left - tbRect.left + ballRect.width / 2,
-        y: ballRect.top - tbRect.top + ballRect.height / 2,
-        digit: cell.dataset.digit,
-        row: parseInt(cell.dataset.row)
+        x: br.left + br.width / 2,
+        y: br.top + br.height / 2
       });
     });
 
     if (points.length < 2) return;
 
-    var pathD = '';
-    points.forEach(function(p, i) {
-      pathD += (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1);
-    });
-
-    if (pathD) {
-      var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      line.setAttribute('d', pathD);
-      line.setAttribute('stroke', cfg.strokeColor);
-      line.setAttribute('stroke-width', '1.8');
-      line.setAttribute('fill', 'none');
-      line.setAttribute('stroke-linecap', 'round');
-      line.setAttribute('stroke-linejoin', 'round');
-      line.setAttribute('opacity', '0.65');
-      svg.appendChild(line);
+    var d = '';
+    for (var i = 0; i < points.length; i++) {
+      d += (i === 0 ? 'M' : 'L') + points[i].x.toFixed(1) + ',' + points[i].y.toFixed(1);
     }
+
+    if (!d) return;
+
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    line.setAttribute('d', d);
+    line.setAttribute('stroke', cfg.strokeColor);
+    line.setAttribute('stroke-width', '1.6');
+    line.setAttribute('fill', 'none');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke-linejoin', 'round');
+    line.setAttribute('opacity', '0.7');
+    svg.appendChild(line);
   });
 }
 
@@ -486,7 +492,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.6</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.8</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
