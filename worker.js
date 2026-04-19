@@ -74,7 +74,7 @@ function renderTable(data) {
   const posMiss = calcPosMissing(revData);
   const zxMiss = calcZuXuanMissing(revData);
   
-  let h = '<div class="table-container" id="tcontainer"><table id="tt"><colgroup>';
+  let h = '<table id="tt"><colgroup>';
   // 信息列：期号72px + 星期30px + 奖号84px = 186px
   h += '<col class="ci" style="width:72px" />';
   h += '<col class="cw" style="width:30px" />';
@@ -199,7 +199,6 @@ function renderTable(data) {
   });
 
   h += '</tbody></table>';
-  h += '</div>';
   return h;
 }
 
@@ -243,8 +242,6 @@ body{
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
 /* 表格固定2286px: 与body宽度一致 */
-/* 表格容器：零 padding + relative 定位基准，供 SVG 绝对定位使用 */
-.table-container{position:relative;padding:0;margin:0;display:inline-block}
 table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
@@ -334,33 +331,35 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
-/* V7.11 走势线绘制 — 零偏移容器方案
- * 布局：.table-container(position:relative, padding:0) 包裹 <table>
- * SVG 放在 .table-container 内 position:absolute，与 table 共享同一坐标原点
- * 坐标计算：ball.getBoundingClientRect() - container.getBoundingClientRect()
+/* V7.8 走势线绘制 — 视口坐标系方案
+ * 原理：SVG 使用 position:fixed，坐标 = getBoundingClientRect() 返回的视口像素。
+ * 无论 body 如何缩放，getBoundingClientRect() 始终返回视口像素，
+ * fixed 元素的定位也始终相对于视口，两者天然一致。
+ * 不需要计算任何缩放因子，不依赖任何父元素的 transform 状态。
  */
 function drawTrends() {
-  var container = document.getElementById('tcontainer');
   var table = document.getElementById('tt');
-  if (!container || !table) return;
+  if (!table) return;
 
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  /* 容器渲染后的实际尺寸（= table 尺寸，因为容器零padding） */
-  var ctRect = container.getBoundingClientRect();
-  var tbRect = table.getBoundingClientRect();
+  /* SVG 提升到 body 层级，使用视口坐标系 */
+  var vw = window.innerWidth;
+  var vh = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
-  svg.setAttribute('width', String(ctRect.width));
-  svg.setAttribute('height', String(ctRect.height));
-  svg.style.position = 'absolute';
+  svg.setAttribute('width', String(vw));
+  svg.setAttribute('height', String(vh));
+  svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
+  /* 固定定位：坐标直接对应视口像素，不受任何 CSS transform 影响 */
+  svg.style.position = 'fixed';
   svg.style.top = '0';
   svg.style.left = '0';
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
-  container.appendChild(svg);
+  document.body.appendChild(svg);
 
   var configs = [
     { pos: 'bai', strokeColor: '#c0392b' },
@@ -375,11 +374,12 @@ function drawTrends() {
     cells.forEach(function(cell) {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
-      var ballRect = ball.getBoundingClientRect();
-      /* 相对于容器左上角 — 与 SVG viewBox 完全一致（容器零 padding） */
+
+      /* getBoundingClientRect() 返回视口像素坐标，与 SVG 的 viewBox 完全一致 */
+      var br = ball.getBoundingClientRect();
       points.push({
-        x: ballRect.left - ctRect.left + ballRect.width / 2,
-        y: ballRect.top - ctRect.top + ballRect.height / 2
+        x: br.left + br.width / 2,
+        y: br.top + br.height / 2
       });
     });
 
@@ -395,7 +395,7 @@ function drawTrends() {
     var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     line.setAttribute('d', d);
     line.setAttribute('stroke', cfg.strokeColor);
-    line.setAttribute('stroke-width', '1.8');
+    line.setAttribute('stroke-width', '1.6');
     line.setAttribute('fill', 'none');
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
@@ -492,7 +492,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.11</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.8</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
