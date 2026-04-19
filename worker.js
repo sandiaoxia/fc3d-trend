@@ -331,35 +331,36 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
-/* V7.8 走势线绘制 — 视口坐标系方案
- * 原理：SVG 使用 position:fixed，坐标 = getBoundingClientRect() 返回的视口像素。
- * 无论 body 如何缩放，getBoundingClientRect() 始终返回视口像素，
- * fixed 元素的定位也始终相对于视口，两者天然一致。
- * 不需要计算任何缩放因子，不依赖任何父元素的 transform 状态。
+/* V7.9 走势线绘制 — 表格坐标系方案（V7.7修复确认）
+ * 原理：SVG 放在 .table-wrap 内部，使用 position:absolute，
+ * 坐标系与表格完全一致（同处 body transform 子空间）。
+ * 坐标计算：ball.getBoundingClientRect() - tableWrap.getBoundingClientRect()
+ * 不需要除以 curScale，不需要任何缩放换算。
  */
 function drawTrends() {
   var table = document.getElementById('tt');
-  if (!table) return;
+  var wrap = document.getElementById('tc');
+  if (!table || !wrap) return;
 
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  /* SVG 提升到 body 层级，使用视口坐标系 */
-  var vw = window.innerWidth;
-  var vh = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+  /* 获取表格容器的位置和尺寸 */
+  var wrapRect = wrap.getBoundingClientRect();
+  var tbRect = table.getBoundingClientRect();
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
-  svg.setAttribute('width', String(vw));
-  svg.setAttribute('height', String(vh));
-  svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
-  /* 固定定位：坐标直接对应视口像素，不受任何 CSS transform 影响 */
-  svg.style.position = 'fixed';
+  /* SVG 宽度 = 表格实际渲染宽度 */
+  svg.setAttribute('width', String(tbRect.width));
+  svg.setAttribute('height', String(tbRect.height));
+  /* 绝对定位在 table-wrap 内，与表格共享同一坐标系 */
+  svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
-  document.body.appendChild(svg);
+  wrap.appendChild(svg);
 
   var configs = [
     { pos: 'bai', strokeColor: '#c0392b' },
@@ -374,12 +375,11 @@ function drawTrends() {
     cells.forEach(function(cell) {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
-
-      /* getBoundingClientRect() 返回视口像素坐标，与 SVG 的 viewBox 完全一致 */
-      var br = ball.getBoundingClientRect();
+      var ballRect = ball.getBoundingClientRect();
+      /* 相对于表格左上角的位置，与 SVG viewBox 一致 */
       points.push({
-        x: br.left + br.width / 2,
-        y: br.top + br.height / 2
+        x: ballRect.left - tbRect.left + ballRect.width / 2,
+        y: ballRect.top - tbRect.top + ballRect.height / 2
       });
     });
 
@@ -395,7 +395,7 @@ function drawTrends() {
     var line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     line.setAttribute('d', d);
     line.setAttribute('stroke', cfg.strokeColor);
-    line.setAttribute('stroke-width', '1.6');
+    line.setAttribute('stroke-width', '1.8');
     line.setAttribute('fill', 'none');
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
@@ -492,7 +492,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.8</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.9</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
