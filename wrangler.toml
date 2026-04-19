@@ -8,3 +8,7 @@ crons = ["45 13 * * *"]
 [[kv_namespaces]]
 binding = "LOTTERY_CACHE"
 id = "fee8641bc582441794ebb15b3188ae3d"
+
+[[routes]]
+pattern = "fc3d.nb518.ccwu.cc"
+zone_name = "nb518.ccwu.cc"
