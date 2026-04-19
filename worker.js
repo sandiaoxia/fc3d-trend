@@ -331,11 +331,16 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
-/* V7.8 走势线绘制 — 视口坐标系方案
- * 原理：SVG 使用 position:fixed，坐标 = getBoundingClientRect() 返回的视口像素。
- * 无论 body 如何缩放，getBoundingClientRect() 始终返回视口像素，
- * fixed 元素的定位也始终相对于视口，两者天然一致。
- * 不需要计算任何缩放因子，不依赖任何父元素的 transform 状态。
+/* V7.9 走势线绘制 — 视口坐标系 + 反向缩放方案
+ * 
+ * 根因（V7.8 bug）：
+ *   body 设置了 transform: scale(s)，导致它成为 position:fixed 元素的新包含块。
+ *   CSS规范规定：祖先有 transform 时，fixed 定位不再相对视口，而是相对该祖先。
+ *   结果：getBoundingClientRect() 返回视口像素，但SVG在body的变换后空间渲染 → 坐标偏移！
+ * 
+ * 修复：
+ *   给SVG施加反向缩放 scale(1/s)，抵消body的transform影响，
+ *   使SVG内部坐标（视口像素）正确映射到屏幕像素。
  */
 function drawTrends() {
   var table = document.getElementById('tt');
@@ -343,6 +348,9 @@ function drawTrends() {
 
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
+
+  /* 获取当前body的缩放比例，用于反向补偿 */
+  var s = window.currentScale || 1;
 
   /* SVG 提升到 body 层级，使用视口坐标系 */
   var vw = window.innerWidth;
@@ -353,12 +361,15 @@ function drawTrends() {
   svg.setAttribute('width', String(vw));
   svg.setAttribute('height', String(vh));
   svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
-  /* 固定定位：坐标直接对应视口像素，不受任何 CSS transform 影响 */
+  /* fixed定位：相对于body（因为body有transform），但通过反向scale抵消坐标差异 */
   svg.style.position = 'fixed';
   svg.style.top = '0';
   svg.style.left = '0';
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
+  /* 关键修复：反向缩放，使SVG内部坐标（视口像素）正确渲染到屏幕位置 */
+  svg.style.transform = 'scale(' + (1 / s) + ')';
+  svg.style.transformOrigin = 'top left';
   document.body.appendChild(svg);
 
   var configs = [
@@ -492,7 +503,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.8</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.9</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
