@@ -74,7 +74,7 @@ function renderTable(data) {
   const posMiss = calcPosMissing(revData);
   const zxMiss = calcZuXuanMissing(revData);
   
-  let h = '<table id="tt"><colgroup>';
+  let h = '<div class="table-container" id="tcontainer"><table id="tt"><colgroup>';
   // 信息列：期号72px + 星期30px + 奖号84px = 186px
   h += '<col class="ci" style="width:72px" />';
   h += '<col class="cw" style="width:30px" />';
@@ -199,6 +199,7 @@ function renderTable(data) {
   });
 
   h += '</tbody></table>';
+  h += '</div>';
   return h;
 }
 
@@ -242,7 +243,9 @@ body{
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
 /* 表格固定2286px: 与body宽度一致 */
-table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px;position:relative}
+/* 表格容器：零 padding + relative 定位基准，供 SVG 绝对定位使用 */
+.table-container{position:relative;padding:0;margin:0;display:inline-block}
+table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -331,33 +334,33 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
-/* V7.10 走势线绘制 — 表格内嵌坐标系方案
- * 原理：SVG 直接作为 <table> 的子元素（position:absolute），
- * 坐标原点 = 表格左上角 = SVG 的(0,0)，完全对齐。
- * 坐标计算：ball.getBoundingClientRect() - table.getBoundingClientRect()
+/* V7.11 走势线绘制 — 零偏移容器方案
+ * 布局：.table-container(position:relative, padding:0) 包裹 <table>
+ * SVG 放在 .table-container 内 position:absolute，与 table 共享同一坐标原点
+ * 坐标计算：ball.getBoundingClientRect() - container.getBoundingClientRect()
  */
 function drawTrends() {
+  var container = document.getElementById('tcontainer');
   var table = document.getElementById('tt');
-  if (!table) return;
+  if (!container || !table) return;
 
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  /* 获取表格渲染后的实际尺寸 */
+  /* 容器渲染后的实际尺寸（= table 尺寸，因为容器零padding） */
+  var ctRect = container.getBoundingClientRect();
   var tbRect = table.getBoundingClientRect();
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
-  /* SVG 尺寸 = 表格实际渲染尺寸 */
-  svg.setAttribute('width', String(tbRect.width));
-  svg.setAttribute('height', String(tbRect.height));
-  /* 绝对定位在表格内部，坐标原点与表格左上角重合 */
+  svg.setAttribute('width', String(ctRect.width));
+  svg.setAttribute('height', String(ctRect.height));
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
-  table.appendChild(svg);
+  container.appendChild(svg);
 
   var configs = [
     { pos: 'bai', strokeColor: '#c0392b' },
@@ -373,10 +376,10 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       var ballRect = ball.getBoundingClientRect();
-      /* 相对于表格左上角 — 与 SVG viewBox 完全一致 */
+      /* 相对于容器左上角 — 与 SVG viewBox 完全一致（容器零 padding） */
       points.push({
-        x: ballRect.left - tbRect.left + ballRect.width / 2,
-        y: ballRect.top - tbRect.top + ballRect.height / 2
+        x: ballRect.left - ctRect.left + ballRect.width / 2,
+        y: ballRect.top - ctRect.top + ballRect.height / 2
       });
     });
 
@@ -489,7 +492,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.10</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.11</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
