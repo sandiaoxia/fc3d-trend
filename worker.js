@@ -242,7 +242,7 @@ body{
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
 /* 表格固定2286px: 与body宽度一致 */
-table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
+table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px;position:relative}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -331,36 +331,33 @@ function autoScale() {
   document.documentElement.style.height = fullHeight + 'px';
 }
 
-/* V7.9 走势线绘制 — 表格坐标系方案（V7.7修复确认）
- * 原理：SVG 放在 .table-wrap 内部，使用 position:absolute，
- * 坐标系与表格完全一致（同处 body transform 子空间）。
- * 坐标计算：ball.getBoundingClientRect() - tableWrap.getBoundingClientRect()
- * 不需要除以 curScale，不需要任何缩放换算。
+/* V7.10 走势线绘制 — 表格内嵌坐标系方案
+ * 原理：SVG 直接作为 <table> 的子元素（position:absolute），
+ * 坐标原点 = 表格左上角 = SVG 的(0,0)，完全对齐。
+ * 坐标计算：ball.getBoundingClientRect() - table.getBoundingClientRect()
  */
 function drawTrends() {
   var table = document.getElementById('tt');
-  var wrap = document.getElementById('tc');
-  if (!table || !wrap) return;
+  if (!table) return;
 
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  /* 获取表格容器的位置和尺寸 */
-  var wrapRect = wrap.getBoundingClientRect();
+  /* 获取表格渲染后的实际尺寸 */
   var tbRect = table.getBoundingClientRect();
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
-  /* SVG 宽度 = 表格实际渲染宽度 */
+  /* SVG 尺寸 = 表格实际渲染尺寸 */
   svg.setAttribute('width', String(tbRect.width));
   svg.setAttribute('height', String(tbRect.height));
-  /* 绝对定位在 table-wrap 内，与表格共享同一坐标系 */
+  /* 绝对定位在表格内部，坐标原点与表格左上角重合 */
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
-  wrap.appendChild(svg);
+  table.appendChild(svg);
 
   var configs = [
     { pos: 'bai', strokeColor: '#c0392b' },
@@ -376,7 +373,7 @@ function drawTrends() {
       var ball = cell.querySelector('.ball');
       if (!ball) return;
       var ballRect = ball.getBoundingClientRect();
-      /* 相对于表格左上角的位置，与 SVG viewBox 一致 */
+      /* 相对于表格左上角 — 与 SVG viewBox 完全一致 */
       points.push({
         x: ballRect.left - tbRect.left + ballRect.width / 2,
         y: ballRect.top - tbRect.top + ballRect.height / 2
@@ -492,7 +489,7 @@ export default {
 
       const body = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-        + '<title>福彩3D走势图 - 最近120期 V7.9</title>'
+        + '<title>福彩3D走势图 - 最近120期 V7.10</title>'
         + '<style>' + CSS + '</style></head><body>'
         
         + '<div class="header"><h1>福彩3D基本走势图</h1>'
