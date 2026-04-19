@@ -242,7 +242,7 @@ body{
 
 .table-wrap{overflow-x:auto;padding:8px 0;background:#fff;position:relative;-webkit-overflow-scrolling:touch}
 /* 表格固定2286px: 与body宽度一致 */
-table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px}
+table{border-collapse:collapse;width:2286px;table-layout:fixed;font-size:12.5px;position:relative}
 
 /* 表头 */
 thead th{border:1px solid #e0c8b8;padding:6px 3px;text-align:center;font-weight:700;color:#555;font-size:11.5px;white-space:nowrap;background:#fff8f0;position:sticky;z-index:99}
@@ -345,9 +345,7 @@ function drawTrends() {
   var oldLayer = document.getElementById('trend-svg');
   if (oldLayer) oldLayer.remove();
 
-  var wrap = document.getElementById('tc');
-  if (!wrap) return;
-
+  /* 把SVG直接放入<table>内部，彻底避免任何容器padding的影响 */
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.id = 'trend-svg';
   svg.setAttribute('width', String(table.offsetWidth));
@@ -358,7 +356,7 @@ function drawTrends() {
   svg.style.zIndex = '2';
   svg.style.pointerEvents = 'none';
   svg.style.overflow = 'visible';
-  wrap.appendChild(svg);
+  table.appendChild(svg);
 
   var configs = [
     { pos: 'bai', strokeColor: '#c0392b' },
